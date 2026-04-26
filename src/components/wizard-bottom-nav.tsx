@@ -10,7 +10,7 @@ type Props = {
   total: number;
 };
 
-const withLang = (href: string, lang: Language) => `${href}?lang=${lang}`;
+const withLang = (href: string, lang: Language) => `${href}${href.includes('?') ? '&' : '?'}lang=${lang}`;
 
 export function WizardBottomNav({ lang, backHref, nextHref, step, total }: Props) {
   const t = labels[lang].wizard;
