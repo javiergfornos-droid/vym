@@ -4,6 +4,62 @@ import { getLanguage } from '@/lib/i18n';
 
 type Props = { searchParams: { lang?: string } };
 
+const REVENUE_OPTIONS = ['<1m', '1-3m', '3-5m', '5-10m', '>10m'];
+const PROVINCES = [
+  'Álava',
+  'Albacete',
+  'Alicante',
+  'Almería',
+  'Asturias',
+  'Ávila',
+  'Badajoz',
+  'Barcelona',
+  'Burgos',
+  'Cáceres',
+  'Cádiz',
+  'Cantabria',
+  'Castellón',
+  'Ciudad Real',
+  'Córdoba',
+  'Cuenca',
+  'Girona',
+  'Granada',
+  'Guadalajara',
+  'Guipúzcoa',
+  'Huelva',
+  'Huesca',
+  'Illes Balears',
+  'Jaén',
+  'La Coruña',
+  'La Rioja',
+  'Las Palmas',
+  'León',
+  'Lleida',
+  'Lugo',
+  'Madrid',
+  'Málaga',
+  'Murcia',
+  'Navarra',
+  'Ourense',
+  'Palencia',
+  'Pontevedra',
+  'Salamanca',
+  'Santa Cruz de Tenerife',
+  'Segovia',
+  'Sevilla',
+  'Soria',
+  'Tarragona',
+  'Teruel',
+  'Toledo',
+  'Valencia',
+  'Valladolid',
+  'Vizcaya',
+  'Zamora',
+  'Zaragoza',
+];
+
+const FOUNDATION_YEARS = Array.from({ length: 2026 - 1960 + 1 }, (_, index) => String(2026 - index));
+
 export default function CompanyIdentificationPage({ searchParams }: Props) {
   const lang = getLanguage(searchParams.lang);
   const labels =
@@ -21,6 +77,9 @@ export default function CompanyIdentificationPage({ searchParams }: Props) {
           revenue: 'Facturación aproximada',
           foundingYear: 'Año de fundación',
           businessType: 'Tipo de empresa',
+          selectPlaceholder: 'Selecciona una opción',
+          single: 'Único Accionista',
+          multiple: 'Múltiples Accionistas',
           sidebar:
             'Esta información nos ayuda a comparar tu empresa con referencias sectoriales más cercanas. Si prefieres, puedes continuar con información mínima.',
         }
@@ -31,12 +90,15 @@ export default function CompanyIdentificationPage({ searchParams }: Props) {
           subtitleSuffix: 'to identify the company in order to continue.',
           companyName: 'Company name',
           website: 'Website',
-          nace: 'NACE code',
+          nace: 'NACE',
           sector: 'Sector',
           province: 'Province',
           revenue: 'Approximate revenue',
           foundingYear: 'Founding year',
           businessType: 'Business type',
+          selectPlaceholder: 'Select one option',
+          single: 'Single Shareholder',
+          multiple: 'Multiple Shareholders',
           sidebar:
             'This information helps us compare your company with more relevant sector references. If you prefer, you can continue with minimal information.',
         };
@@ -63,42 +125,97 @@ export default function CompanyIdentificationPage({ searchParams }: Props) {
             <div className="grid gap-4 md:grid-cols-3">
               <label className="md:col-span-2">
                 <span className="mb-2 block text-sm text-mutedInk">{labels.companyName}</span>
-                <input className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent" type="text" />
+                <input
+                  className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                  type="text"
+                />
               </label>
               <label>
                 <span className="mb-2 block text-sm text-mutedInk">{labels.website}</span>
-                <input className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent" type="url" />
+                <input
+                  className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                  type="url"
+                />
               </label>
             </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <label>
                 <span className="mb-2 block text-sm text-mutedInk">{labels.nace}</span>
-                <input className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent" type="text" />
+                <input
+                  className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                  type="text"
+                />
               </label>
               <label>
                 <span className="mb-2 block text-sm text-mutedInk">{labels.sector}</span>
-                <input className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent" type="text" />
+                <input
+                  className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                  type="text"
+                />
               </label>
             </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <label>
                 <span className="mb-2 block text-sm text-mutedInk">{labels.province}</span>
-                <input className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent" type="text" />
+                <select className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent">
+                  <option value="">{labels.selectPlaceholder}</option>
+                  {PROVINCES.map((province) => (
+                    <option key={province} value={province}>
+                      {province}
+                    </option>
+                  ))}
+                </select>
               </label>
-              <label>
+
+              <div>
                 <span className="mb-2 block text-sm text-mutedInk">{labels.revenue}</span>
-                <input className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent" type="text" />
-              </label>
+                <div className="flex flex-wrap gap-2">
+                  {REVENUE_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      className="rounded-full border border-line px-4 py-2 text-sm text-slateInk transition hover:border-accent"
+                      type="button"
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <label>
                 <span className="mb-2 block text-sm text-mutedInk">{labels.foundingYear}</span>
-                <input className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent" type="number" />
+                <select className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent">
+                  <option value="">{labels.selectPlaceholder}</option>
+                  {FOUNDATION_YEARS.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
               </label>
-              <label>
+
+              <div>
                 <span className="mb-2 block text-sm text-mutedInk">{labels.businessType}</span>
-                <input className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent" type="text" />
-              </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    className="rounded-full border border-line px-4 py-2 text-sm text-slateInk transition hover:border-accent"
+                    type="button"
+                  >
+                    {labels.single}
+                  </button>
+                  <button
+                    className="rounded-full border border-line px-4 py-2 text-sm text-slateInk transition hover:border-accent"
+                    type="button"
+                  >
+                    {labels.multiple}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
+
           <aside className="h-fit rounded-2xl border border-line bg-ivory/70 p-5 text-sm leading-relaxed text-mutedInk">
             {labels.sidebar}
           </aside>
