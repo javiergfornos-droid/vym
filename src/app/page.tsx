@@ -32,7 +32,7 @@ const landingCopy: Record<Language, LandingCopy> = {
       secondaryCta: 'Cómo funciona',
     },
     usage: {
-      sectionTitle: 'Valora tu empresa paso a paso',
+      sectionTitle: 'Hazlo tú mismo. Paso a paso.',
       cards: [
         {
           title: 'Introduce tu información financiera',
@@ -59,7 +59,7 @@ const landingCopy: Record<Language, LandingCopy> = {
       secondaryCta: 'How it works',
     },
     usage: {
-      sectionTitle: 'Value your company step by step',
+      sectionTitle: 'Do it yourself. Step by step.',
       cards: [
         {
           title: 'Enter your financial information',
@@ -90,7 +90,7 @@ export default function Home({ searchParams }: Props) {
       <TopNav currentPath="/" lang={lang} />
       <main className="bg-ivory pt-20">
         <section className="border-b border-line">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 pb-14 pt-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 pb-14 pt-16">
             <div>
               <p className="mb-5 text-xs uppercase tracking-[0.2em] text-mutedInk">{copy.hero.eyebrow}</p>
               <h1 className="max-w-4xl font-editorial text-5xl leading-[1.08] tracking-premium text-slateInk md:text-6xl lg:text-7xl">
@@ -106,15 +106,11 @@ export default function Home({ searchParams }: Props) {
                 </Link>
                 <Link
                   className="rounded-full border border-line bg-white px-7 py-3 text-xs uppercase tracking-[0.15em] text-slateInk hover:border-mutedInk"
-                  href={withLang('/#how-it-works', lang)}
+                  href={withLang('/how-it-works', lang)}
                 >
                   {copy.hero.secondaryCta}
                 </Link>
               </div>
-            </div>
-            <div className="rounded-3xl border border-line bg-white p-8 shadow-whisper">
-              <p className="font-editorial text-2xl leading-snug text-slateInk">{copy.usage.sectionTitle}</p>
-              <p className="mt-4 text-sm leading-relaxed text-mutedInk">VYM</p>
             </div>
           </div>
         </section>
