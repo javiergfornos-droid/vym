@@ -6,7 +6,7 @@ import { WizardBottomNav } from './wizard-bottom-nav';
 type Props = {
   lang: Language;
   title: string;
-  description: string;
+  description: ReactNode;
   children?: ReactNode;
   step: number;
   total: number;
