@@ -1,4 +1,5 @@
 import { TopNav } from '@/components/top-nav';
+import { CompanyIdentificationForm } from '@/components/company-identification-form';
 import { WizardStepShell } from '@/components/wizard-step-shell';
 import { getLanguage } from '@/lib/i18n';
 
@@ -120,106 +121,13 @@ export default function CompanyIdentificationPage({ searchParams }: Props) {
         title={labels.title}
         total={7}
       >
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            <div className="grid gap-4 md:grid-cols-3">
-              <label className="md:col-span-2">
-                <span className="mb-2 block text-sm text-mutedInk">{labels.companyName}</span>
-                <input
-                  className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
-                  type="text"
-                />
-              </label>
-              <label>
-                <span className="mb-2 block text-sm text-mutedInk">{labels.website}</span>
-                <input
-                  className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
-                  type="url"
-                />
-              </label>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <label>
-                <span className="mb-2 block text-sm text-mutedInk">{labels.nace}</span>
-                <input
-                  className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
-                  type="text"
-                />
-              </label>
-              <label>
-                <span className="mb-2 block text-sm text-mutedInk">{labels.sector}</span>
-                <input
-                  className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
-                  type="text"
-                />
-              </label>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <label>
-                <span className="mb-2 block text-sm text-mutedInk">{labels.province}</span>
-                <select className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent">
-                  <option value="">{labels.selectPlaceholder}</option>
-                  {PROVINCES.map((province) => (
-                    <option key={province} value={province}>
-                      {province}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div>
-                <span className="mb-2 block text-sm text-mutedInk">{labels.revenue}</span>
-                <div className="flex flex-wrap gap-2">
-                  {REVENUE_OPTIONS.map((option) => (
-                    <button
-                      key={option}
-                      className="rounded-full border border-line px-4 py-2 text-sm text-slateInk transition hover:border-accent"
-                      type="button"
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <label>
-                <span className="mb-2 block text-sm text-mutedInk">{labels.foundingYear}</span>
-                <select className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent">
-                  <option value="">{labels.selectPlaceholder}</option>
-                  {FOUNDATION_YEARS.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div>
-                <span className="mb-2 block text-sm text-mutedInk">{labels.businessType}</span>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    className="rounded-full border border-line px-4 py-2 text-sm text-slateInk transition hover:border-accent"
-                    type="button"
-                  >
-                    {labels.single}
-                  </button>
-                  <button
-                    className="rounded-full border border-line px-4 py-2 text-sm text-slateInk transition hover:border-accent"
-                    type="button"
-                  >
-                    {labels.multiple}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <aside className="h-fit rounded-2xl border border-line bg-ivory/70 p-5 text-sm leading-relaxed text-mutedInk">
-            {labels.sidebar}
-          </aside>
-        </div>
+        <CompanyIdentificationForm
+          foundationYears={FOUNDATION_YEARS}
+          lang={lang}
+          labels={labels}
+          provinces={PROVINCES}
+          revenueOptions={REVENUE_OPTIONS}
+        />
       </WizardStepShell>
     </>
   );

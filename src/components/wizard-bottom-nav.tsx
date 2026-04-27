@@ -14,7 +14,6 @@ const withLang = (href: string, lang: Language) => `${href}${href.includes('?') 
 
 export function WizardBottomNav({ lang, backHref, nextHref, step, total }: Props) {
   const t = labels[lang].wizard;
-  const progress = Math.round((step / total) * 100);
 
   return (
     <footer className="mt-16 border-t border-line pt-6">
@@ -36,13 +35,16 @@ export function WizardBottomNav({ lang, backHref, nextHref, step, total }: Props
           )}
         </div>
         <button className="text-sm text-slateInk underline decoration-line underline-offset-4">{t.doubts}</button>
-        <div className="min-w-44">
-          <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">
-            {t.progress}: {progress}%
-          </p>
-          <p className="text-sm text-slateInk">
-            {t.stepLabel} {step}/{total}
-          </p>
+        <div className="flex min-w-44 justify-end gap-2">
+          {Array.from({ length: total }, (_, index) => {
+            const filled = index < step;
+            return (
+              <span
+                key={`progress-${index + 1}`}
+                className={`h-3 w-3 rounded-[2px] border ${filled ? 'border-accent bg-accent' : 'border-line bg-white'}`}
+              />
+            );
+          })}
         </div>
       </div>
     </footer>
