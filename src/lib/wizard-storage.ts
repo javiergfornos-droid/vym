@@ -11,7 +11,7 @@ export function readWizardStorage<T>(key: string, fallback: T): T {
     return fallback;
   }
 
-  const stored = window.localStorage.getItem(key);
+  const stored = window.sessionStorage.getItem(key);
   if (!stored) {
     return fallback;
   }
@@ -28,7 +28,7 @@ export function writeWizardStorage<T>(key: string, value: T) {
     return;
   }
 
-  window.localStorage.setItem(key, JSON.stringify(value));
+  window.sessionStorage.setItem(key, JSON.stringify(value));
 }
 
 export function clearWizardStorage(key: string) {
@@ -36,7 +36,7 @@ export function clearWizardStorage(key: string) {
     return;
   }
 
-  window.localStorage.removeItem(key);
+  window.sessionStorage.removeItem(key);
 }
 
 export function clearAllWizardStorage() {
@@ -45,6 +45,6 @@ export function clearAllWizardStorage() {
   }
 
   WIZARD_STORAGE_KEY_LIST.forEach((key) => {
-    window.localStorage.removeItem(key);
+    window.sessionStorage.removeItem(key);
   });
 }
