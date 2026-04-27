@@ -18,7 +18,7 @@ export default function TransitionAssumptionsPage({ searchParams }: Props) {
             : 'Bridge screen to prepare assumptions block and projection criteria.'
         }
         lang={lang}
-        nextHref="/wizard/revenue-assumptions"
+        nextHref="/wizard/revenue-assumptions/mode"
         step={6}
         title={lang === 'es' ? 'Transición a supuestos' : 'Transition to assumptions'}
         total={7}
