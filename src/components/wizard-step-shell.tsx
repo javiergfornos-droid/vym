@@ -6,7 +6,7 @@ import { WizardBottomNav } from './wizard-bottom-nav';
 type Props = {
   lang: Language;
   title: string;
-  description: string;
+  description: ReactNode;
   children?: ReactNode;
   step: number;
   total: number;
@@ -30,8 +30,20 @@ export function WizardStepShell({
         <h1 className="font-editorial text-4xl text-slateInk">{title}</h1>
         <p className="mt-3 max-w-2xl text-mutedInk">{description}</p>
       </header>
-      <section className="rounded-2xl border border-line bg-white p-8 shadow-whisper">{children}</section>
-      <WizardBottomNav backHref={backHref} lang={lang} nextHref={nextHref} step={step} total={total} />
+      <section className="rounded-2xl border border-line bg-white p-8 shadow-whisper">
+        {children}
+        <div className="mt-8 flex justify-end">
+          <WizardBottomNav
+            backHref={backHref}
+            lang={lang}
+            mode="buttons"
+            nextHref={nextHref}
+            step={step}
+            total={total}
+          />
+        </div>
+      </section>
+      <WizardBottomNav backHref={backHref} lang={lang} mode="meta" nextHref={nextHref} step={step} total={total} />
     </main>
   );
 }
