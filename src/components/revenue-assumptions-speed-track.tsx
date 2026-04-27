@@ -81,10 +81,26 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
       <div className="space-y-6">
         <div className="grid gap-2 md:grid-cols-2">
           {[
-            { key: 'constant-growth', en: 'constant growth', es: 'crecimiento constante' },
-            { key: 'year-by-year-growth', en: 'year-by-year growth', es: 'crecimiento año a año' },
-            { key: 'year-5-target', en: 'year-5 target', es: 'objetivo año 5' },
-            { key: 'vym-sector-reference', en: 'VYM sector reference', es: 'referencia sectorial VYM' },
+            {
+              key: 'constant-growth',
+              en: 'My company will grow at a constant rate over the next 5 years',
+              es: 'Mi empresa va a tener un crecimiento constante los próximos 5 años',
+            },
+            {
+              key: 'year-by-year-growth',
+              en: 'My company will grow differently each year',
+              es: 'Mi empresa va a crecer de forma diferente cada año',
+            },
+            {
+              key: 'year-5-target',
+              en: 'I want to reach a revenue target in year 5',
+              es: 'Quiero alcanzar un objetivo de ventas en el año 5',
+            },
+            {
+              key: 'vym-sector-reference',
+              en: 'I want to use a VYM sector reference',
+              es: 'Quiero usar una referencia sectorial de VYM',
+            },
           ].map((item) => {
             const selected = mode === item.key;
             return (
@@ -94,7 +110,9 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 onClick={() => setMode(item.key as RevenueMode)}
                 type="button"
               >
-                <span className="text-sm text-slateInk">{lang === 'es' ? item.es : item.en}</span>
+                <span className="font-editorial text-[15px] leading-snug tracking-[0.01em] text-slateInk">
+                  {lang === 'es' ? item.es : item.en}
+                </span>
               </button>
             );
           })}
