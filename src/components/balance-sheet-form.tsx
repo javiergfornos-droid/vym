@@ -26,7 +26,7 @@ type BalanceValues = {
 };
 
 const INITIAL_VALUES: BalanceValues = {
-  assets: Array.from({ length: 5 }, () => ''),
+  assets: Array.from({ length: 6 }, () => ''),
   liabilities: Array.from({ length: 6 }, () => ''),
 };
 

@@ -118,12 +118,12 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           })}
         </div>
 
-        <div className="rounded-xl border border-line p-4">
+        <div className="rounded-xl border border-line p-4 font-editorial">
           <div className="grid gap-3 md:grid-cols-2">
             <label className="text-sm text-mutedInk">
               {lang === 'es' ? 'base revenue' : 'base revenue'}
               <input
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-slateInk"
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial text-slateInk"
                 min={1}
                 onChange={(e) => setBaseRevenue(Number(e.target.value) || 0)}
                 type="number"
@@ -135,7 +135,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               <label className="text-sm text-mutedInk">
                 CAGR %
                 <input
-                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-slateInk"
+                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial text-slateInk"
                   onChange={(e) => setConstantGrowth(Number(e.target.value) || 0)}
                   type="number"
                   value={constantGrowth}
@@ -147,7 +147,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               <label className="text-sm text-mutedInk">
                 {lang === 'es' ? 'year 5 revenue' : 'year 5 revenue'}
                 <input
-                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-slateInk"
+                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial text-slateInk"
                   min={1}
                   onChange={(e) => setTargetYear5(Number(e.target.value) || 0)}
                   type="number"
@@ -163,7 +163,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                     <label className="text-xs text-mutedInk" key={`year-rate-${index + 1}`}>
                       Y{index + 1} %
                       <input
-                        className="mt-1 w-full rounded-lg border border-line px-2 py-2 text-slateInk"
+                        className="mt-1 w-full rounded-lg border border-line px-2 py-2 font-editorial text-slateInk"
                         onChange={(e) => {
                           const next = [...yearRates];
                           next[index] = Number(e.target.value) || 0;
@@ -186,7 +186,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           </div>
         </div>
 
-        <div className="rounded-xl border border-line bg-ivory p-4">
+        <div className="rounded-xl border border-line bg-ivory p-4 font-editorial">
           <p className="text-sm text-slateInk">
             {lang === 'es' ? `Referencia VYM: ${formatRate(BENCHMARK_RATE, lang)} %` : `VYM reference: ${formatRate(BENCHMARK_RATE, lang)}%`}
           </p>
@@ -194,7 +194,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
         </div>
 
         <button
-          className="rounded-full bg-accent px-5 py-2 text-sm text-ivory"
+          className="rounded-full bg-accent px-5 py-2 font-editorial text-sm text-ivory"
           onClick={() => setShowImpact(true)}
           type="button"
         >
@@ -202,7 +202,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
         </button>
 
         {showImpact && (
-          <div className="rounded-xl border border-line p-4">
+          <div className="rounded-xl border border-line p-4 font-editorial">
             <div className="grid gap-2 text-sm text-slateInk sm:grid-cols-2">
               <p>{`${lang === 'es' ? 'base revenue' : 'base revenue'}: ${formatCurrency(baseRevenue, lang)}`}</p>
               <p>{`${lang === 'es' ? 'year 5 revenue' : 'year 5 revenue'}: ${formatCurrency(year5Revenue, lang)}`}</p>
