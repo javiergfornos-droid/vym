@@ -1,6 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
+import { WIZARD_STORAGE_KEYS, readWizardStorage, writeWizardStorage } from '@/lib/wizard-storage';
+import { WizardResetActions } from './wizard-reset-actions';
 
 type ItemKey =
   | 'sales'
@@ -53,7 +56,7 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
           ],
         };
 
-  const [values, setValues] = useState<Record<ItemKey, string>>({
+  const initialValues: Record<ItemKey, string> = {
     sales: '',
     purchases: '',
     adminExpenses: '',
@@ -62,7 +65,17 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
     financialIncome: '',
     financialExpenses: '',
     corporateTax: '',
-  });
+  };
+
+  const [values, setValues] = useState<Record<ItemKey, string>>(initialValues);
+
+  useEffect(() => {
+    setValues(readWizardStorage(WIZARD_STORAGE_KEYS.incomeStatement, initialValues));
+  }, []);
+
+  useEffect(() => {
+    writeWizardStorage(WIZARD_STORAGE_KEYS.incomeStatement, values);
+  }, [values]);
 
   const totals = useMemo(() => {
     const number = (key: ItemKey) => Number(values[key] || 0);
@@ -76,6 +89,8 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
 
   return (
     <div className="space-y-6">
+      <WizardResetActions lang={lang} onClearScreen={() => setValues(initialValues)} />
+
       <p className="text-sm text-mutedInk">{labels.note}</p>
 
       <div className="space-y-3">
@@ -88,7 +103,7 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
                 {item.label} {labels.amount}
               </span>
               <input
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
+                className="no-spinner w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
                 inputMode="decimal"
                 type="number"
                 value={values[item.key]}
