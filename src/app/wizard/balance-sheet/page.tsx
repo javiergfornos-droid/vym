@@ -27,18 +27,19 @@ export default function BalanceSheetPage({ searchParams }: Props) {
           totalEquityAndLiabilities: 'Patrimonio Neto y Pasivo Total',
           assetsItems: [
             '1. Activo Fijo',
-            '2. Inversiones Largo Plazo',
-            '3. Cuentas por Cobrar',
-            '4. Otros saldos de activo',
-            '5. Efectivo',
+            '2. Activo Intangible',
+            '3. Inversiones Largo Plazo',
+            '4. Cuentas por Cobrar',
+            '5. Otros saldos de activo',
+            '6. Efectivo',
           ],
           liabilitiesItems: [
-            '6. Capital',
-            '7. Reservas',
-            '8. Deudas Financieras LP',
-            '9. Deudas Financieras CP',
-            '10. Proveedores',
-            '11. Otros Pasivos',
+            '7. Capital',
+            '8. Reservas',
+            '9. Deudas Financieras LP',
+            '10. Deudas Financieras CP',
+            '11. Proveedores',
+            '12. Otros Pasivos',
           ],
         }
       : {
@@ -51,18 +52,19 @@ export default function BalanceSheetPage({ searchParams }: Props) {
           totalEquityAndLiabilities: 'Total Equity and Liabilities',
           assetsItems: [
             '1. Fixed Assets',
-            '2. Long-term Investments',
-            '3. Accounts Receivable',
-            '4. Other Asset Balances',
-            '5. Cash',
+            '2. Intangible Assets',
+            '3. Long-term Investments',
+            '4. Accounts Receivable',
+            '5. Other Asset Balances',
+            '6. Cash',
           ],
           liabilitiesItems: [
-            '6. Capital',
-            '7. Reserves',
-            '8. Long-term Financial Debt',
-            '9. Short-term Financial Debt',
-            '10. Suppliers',
-            '11. Other Liabilities',
+            '7. Capital',
+            '8. Reserves',
+            '9. Long-term Financial Debt',
+            '10. Short-term Financial Debt',
+            '11. Suppliers',
+            '12. Other Liabilities',
           ],
         };
 
@@ -72,6 +74,7 @@ export default function BalanceSheetPage({ searchParams }: Props) {
       <WizardStepShell
         backHref="/wizard/income-statement"
         description={labels.description}
+        inlineButtons
         lang={lang}
         nextHref="/wizard/transition-assumptions"
         step={5}

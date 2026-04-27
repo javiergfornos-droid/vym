@@ -27,6 +27,7 @@ export default function IncomeStatementPage({ searchParams }: Props) {
             ? `Introduce la cuenta de resultados del ejercicio ${fiscalYear}.`
             : `Enter the income statement for fiscal year ${fiscalYear}.`
         }
+        inlineButtons
         lang={lang}
         nextHref={`/wizard/balance-sheet?unit=${unit}&fiscalYear=${fiscalYear}`}
         step={4}
