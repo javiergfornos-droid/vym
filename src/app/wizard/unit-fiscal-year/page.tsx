@@ -43,6 +43,7 @@ export default function UnitFiscalYearPage({ searchParams }: Props) {
       <WizardStepShell
         backHref="/wizard/company-identification"
         description={labels.description}
+        inlineButtons
         lang={lang}
         nextHref={nextHref}
         step={3}

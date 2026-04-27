@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { formatNumericInput, sanitizeNumericInput } from '@/lib/numeric-format';
 import { WIZARD_STORAGE_KEYS, readWizardStorage, writeWizardStorage } from '@/lib/wizard-storage';
 import { WizardResetActions } from './wizard-reset-actions';
 
@@ -28,6 +29,8 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
           amount: 'Importe',
           ebitda: 'EBITDA',
           ebit: 'EBIT',
+          ebitdaMargin: 'EBITDA Margin',
+          ebitMargin: 'EBIT Margin',
           items: [
             { key: 'sales' as ItemKey, label: 'Ventas / Ingresos' },
             { key: 'purchases' as ItemKey, label: 'Compras / Aprovisionamientos' },
@@ -44,6 +47,8 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
           amount: 'Amount',
           ebitda: 'EBITDA',
           ebit: 'EBIT',
+          ebitdaMargin: 'EBITDA Margin',
+          ebitMargin: 'EBIT Margin',
           items: [
             { key: 'sales' as ItemKey, label: 'Sales / Revenue' },
             { key: 'purchases' as ItemKey, label: 'Purchases / Supplies' },
@@ -81,11 +86,20 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
     const number = (key: ItemKey) => Number(values[key] || 0);
     const ebitda = number('sales') - number('purchases') - number('adminExpenses') - number('personnelExpenses');
     const ebit = ebitda - number('amortizations');
+    const revenue = number('sales');
+    const ebitdaMargin = revenue === 0 ? 0 : (ebitda / revenue) * 100;
+    const ebitMargin = revenue === 0 ? 0 : (ebit / revenue) * 100;
 
-    return { ebitda, ebit };
+    return { ebitda, ebit, ebitdaMargin, ebitMargin };
   }, [values]);
 
-  const formatNumber = (value: number) => new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(value);
+  const locale = lang === 'es' ? 'es-ES' : 'en-US';
+  const formatNumber = (value: number) => new Intl.NumberFormat(locale).format(value);
+  const formatPercent = (value: number) =>
+    new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(value);
 
   return (
     <div className="space-y-6">
@@ -105,23 +119,35 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
               <input
                 className="no-spinner w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
                 inputMode="decimal"
-                type="number"
-                value={values[item.key]}
-                onChange={(event) => setValues((prev) => ({ ...prev, [item.key]: event.target.value }))}
+                type="text"
+                value={formatNumericInput(values[item.key], locale)}
+                onChange={(event) =>
+                  setValues((prev) => ({ ...prev, [item.key]: sanitizeNumericInput(event.target.value, locale) }))
+                }
               />
             </label>
           </div>
         ))}
       </div>
 
-      <div className="grid gap-3 border-t border-line pt-4 sm:grid-cols-2">
+      <div className="grid gap-3 border-t border-line pt-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-line bg-white px-4 py-3">
           <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">{labels.ebitda}</p>
+          <p className="mt-1 text-xs text-mutedInk">{unitLabel}</p>
           <p className="mt-1 text-xl text-slateInk">{formatNumber(totals.ebitda)}</p>
         </div>
         <div className="rounded-xl border border-line bg-white px-4 py-3">
           <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">{labels.ebit}</p>
+          <p className="mt-1 text-xs text-mutedInk">{unitLabel}</p>
           <p className="mt-1 text-xl text-slateInk">{formatNumber(totals.ebit)}</p>
+        </div>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">{labels.ebitdaMargin}</p>
+          <p className="mt-5 text-xl text-slateInk">{formatPercent(totals.ebitdaMargin)}%</p>
+        </div>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">{labels.ebitMargin}</p>
+          <p className="mt-5 text-xl text-slateInk">{formatPercent(totals.ebitMargin)}%</p>
         </div>
       </div>
     </div>

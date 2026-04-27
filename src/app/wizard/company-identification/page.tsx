@@ -115,6 +115,7 @@ export default function CompanyIdentificationPage({ searchParams }: Props) {
             <strong>{labels.subtitleEmphasis}</strong> {labels.subtitleSuffix}
           </>
         }
+        inlineButtons
         lang={lang}
         nextHref="/wizard/unit-fiscal-year"
         step={2}

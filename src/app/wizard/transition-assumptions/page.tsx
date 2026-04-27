@@ -17,6 +17,7 @@ export default function TransitionAssumptionsPage({ searchParams }: Props) {
             ? 'Pantalla puente para preparar el bloque de supuestos y criterios de proyección.'
             : 'Bridge screen to prepare assumptions block and projection criteria.'
         }
+        inlineButtons
         lang={lang}
         nextHref="/wizard/revenue-assumptions"
         step={6}
