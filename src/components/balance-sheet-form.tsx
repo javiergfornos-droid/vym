@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { WIZARD_STORAGE_KEYS, readWizardStorage, writeWizardStorage } from '@/lib/wizard-storage';
+import { FormattedNumberInput } from './formatted-number-input';
 import { WizardResetActions } from './wizard-reset-actions';
 
 type Props = {
@@ -71,61 +72,61 @@ export function BalanceSheetForm({ lang, unitLabel, labels }: Props) {
     <div className="space-y-8">
       <WizardResetActions lang={lang} onClearScreen={() => setValues(INITIAL_VALUES)} />
 
-      <section className="space-y-3 rounded-2xl border border-line bg-ivory/30 p-4">
-        <div className="border-b border-line pb-3">
-          <h2 className="font-editorial text-2xl text-slateInk">{labels.assets}</h2>
-        </div>
-        {labels.assetsItems.map((item, index) => (
-          <div key={item} className="grid items-center gap-4 rounded-xl border border-line bg-white p-3 md:grid-cols-[1.4fr_auto_1fr]">
-            <p className="text-slateInk">{item}</p>
-            <p className="text-sm text-mutedInk">{unitLabel}</p>
-            <label>
-              <span className="sr-only">
-                {item} {labels.amount}
-              </span>
-              <input
-                className="no-spinner w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
-                inputMode="decimal"
-                type="number"
-                value={values.assets[index]}
-                onChange={(event) => setAssetValue(index, event.target.value)}
-              />
-            </label>
+      <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
+        <section className="space-y-3 rounded-2xl border border-line bg-ivory/30 p-4">
+          <div className="border-b border-line pb-3">
+            <h2 className="font-editorial text-2xl text-slateInk">{labels.assets}</h2>
           </div>
-        ))}
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">{labels.totalAssets}</p>
-          <p className="mt-1 text-xl text-slateInk">{formatNumber(totals.assets)}</p>
-        </div>
-      </section>
+          {labels.assetsItems.map((item, index) => (
+            <div key={item} className="grid items-center gap-4 rounded-xl border border-line bg-white p-3 md:grid-cols-[1.4fr_auto_1fr]">
+              <p className="text-slateInk">{item}</p>
+              <p className="text-sm text-mutedInk">{unitLabel}</p>
+              <label>
+                <span className="sr-only">
+                  {item} {labels.amount}
+                </span>
+                <FormattedNumberInput
+                  className="no-spinner w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
+                  lang={lang}
+                  value={values.assets[index]}
+                  onChange={(value) => setAssetValue(index, value)}
+                />
+              </label>
+            </div>
+          ))}
+          <div className="rounded-xl border border-line bg-white px-4 py-3">
+            <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">{labels.totalAssets}</p>
+            <p className="mt-1 text-xl text-slateInk">{formatNumber(totals.assets)}</p>
+          </div>
+        </section>
 
-      <section className="space-y-3 rounded-2xl border border-line bg-ivory/30 p-4">
-        <div className="border-b border-line pb-3">
-          <h2 className="font-editorial text-2xl text-slateInk">{labels.equityAndLiabilities}</h2>
-        </div>
-        {labels.liabilitiesItems.map((item, index) => (
-          <div key={item} className="grid items-center gap-4 rounded-xl border border-line bg-white p-3 md:grid-cols-[1.4fr_auto_1fr]">
-            <p className="text-slateInk">{item}</p>
-            <p className="text-sm text-mutedInk">{unitLabel}</p>
-            <label>
-              <span className="sr-only">
-                {item} {labels.amount}
-              </span>
-              <input
-                className="no-spinner w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
-                inputMode="decimal"
-                type="number"
-                value={values.liabilities[index]}
-                onChange={(event) => setLiabilityValue(index, event.target.value)}
-              />
-            </label>
+        <section className="space-y-3 rounded-2xl border border-line bg-ivory/30 p-4">
+          <div className="border-b border-line pb-3">
+            <h2 className="font-editorial text-2xl text-slateInk">{labels.equityAndLiabilities}</h2>
           </div>
-        ))}
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">{labels.totalEquityAndLiabilities}</p>
-          <p className="mt-1 text-xl text-slateInk">{formatNumber(totals.liabilities)}</p>
-        </div>
-      </section>
+          {labels.liabilitiesItems.map((item, index) => (
+            <div key={item} className="grid items-center gap-4 rounded-xl border border-line bg-white p-3 md:grid-cols-[1.4fr_auto_1fr]">
+              <p className="text-slateInk">{item}</p>
+              <p className="text-sm text-mutedInk">{unitLabel}</p>
+              <label>
+                <span className="sr-only">
+                  {item} {labels.amount}
+                </span>
+                <FormattedNumberInput
+                  className="no-spinner w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
+                  lang={lang}
+                  value={values.liabilities[index]}
+                  onChange={(value) => setLiabilityValue(index, value)}
+                />
+              </label>
+            </div>
+          ))}
+          <div className="rounded-xl border border-line bg-white px-4 py-3">
+            <p className="text-xs uppercase tracking-[0.16em] text-mutedInk">{labels.totalEquityAndLiabilities}</p>
+            <p className="mt-1 text-xl text-slateInk">{formatNumber(totals.liabilities)}</p>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
