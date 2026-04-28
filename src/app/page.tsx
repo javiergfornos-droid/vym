@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { SiteFooter } from '@/components/site-footer';
 import { TopNav } from '@/components/top-nav';
 import { getLanguage, type Language } from '@/lib/i18n';
 
@@ -19,7 +20,6 @@ type LandingCopy = {
     sectionTitle: string;
     cards: Array<{ title: string; body: string }>;
   };
-  footerLinks: string[];
 };
 
 const landingCopy: Record<Language, LandingCopy> = {
@@ -48,7 +48,6 @@ const landingCopy: Record<Language, LandingCopy> = {
         },
       ],
     },
-    footerLinks: ['Disclaimer', 'Política de privacidad', 'Cookies', 'Términos de uso', 'Contacto'],
   },
   en: {
     hero: {
@@ -75,7 +74,6 @@ const landingCopy: Record<Language, LandingCopy> = {
         },
       ],
     },
-    footerLinks: ['Disclaimer', 'Privacy Policy', 'Cookies', 'Terms of Use', 'Contact'],
   },
 };
 
@@ -130,27 +128,8 @@ export default function Home({ searchParams }: Props) {
           </div>
         </section>
 
-        <section id="who-we-are" className="border-b border-line py-12 scroll-mt-28">
-          <div className="mx-auto max-w-6xl px-6">
-            <p className="text-sm uppercase tracking-[0.16em] text-mutedInk">
-              {lang === 'es'
-                ? 'Pendiente de aprobación de contenido para esta sección.'
-                : 'Content pending explicit approval for this section.'}
-            </p>
-          </div>
-        </section>
+        <SiteFooter lang={lang} />
 
-        <footer id="contact" className="mx-auto max-w-6xl px-6 py-10">
-          <ul className="flex flex-wrap gap-x-8 gap-y-3 font-editorial text-sm text-mutedInk">
-            {copy.footerLinks.map((item) => (
-              <li key={item}>
-                <a className="hover:text-slateInk" href="#">
-                  {item}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </footer>
       </main>
     </>
   );
