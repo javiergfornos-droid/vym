@@ -51,7 +51,7 @@ export default function UnitFiscalYearPage({ searchParams }: Props) {
       >
         <div className="space-y-8">
           <section>
-            <h2 className="mb-3 text-sm text-mutedInk">{labels.unit}</h2>
+            <h2 className="mb-3 font-editorial text-sm text-mutedInk">{labels.unit}</h2>
             <div className="flex flex-wrap gap-3">
               {UNIT_OPTIONS.map((option) => {
                 const active = option.value === selectedUnit;
@@ -59,7 +59,7 @@ export default function UnitFiscalYearPage({ searchParams }: Props) {
                 return (
                   <Link
                     key={option.value}
-                    className={`rounded-full px-4 py-2 text-sm transition ${
+                    className={`rounded-full px-4 py-2 font-editorial text-sm transition ${
                       active
                         ? 'border border-accent bg-accent text-ivory'
                         : 'border border-line text-slateInk hover:border-accent'
@@ -74,7 +74,7 @@ export default function UnitFiscalYearPage({ searchParams }: Props) {
           </section>
 
           <section>
-            <h2 className="mb-3 text-sm text-mutedInk">{labels.latestFiscalYear}</h2>
+            <h2 className="mb-3 font-editorial text-sm text-mutedInk">{labels.latestFiscalYear}</h2>
             <div className="flex flex-wrap gap-3">
               {YEAR_OPTIONS.map((year) => {
                 const active = year === selectedYear;
@@ -82,7 +82,7 @@ export default function UnitFiscalYearPage({ searchParams }: Props) {
                 return (
                   <Link
                     key={year}
-                    className={`rounded-full px-4 py-2 text-sm transition ${
+                    className={`rounded-full px-4 py-2 font-editorial text-sm transition ${
                       active
                         ? 'border border-accent bg-accent text-ivory'
                         : 'border border-line text-slateInk hover:border-accent'
