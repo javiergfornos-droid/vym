@@ -57,11 +57,13 @@ function SectionCard({ title, children }: { title: string; children: ReactNode }
 }
 
 function SummaryGrid({
+  labels,
   current,
   assumption,
   benchmark,
   year5,
 }: {
+  labels: { current: string; assumption: string; benchmark: string; year5: string };
   current: ReactNode;
   assumption: ReactNode;
   benchmark: ReactNode;
@@ -70,10 +72,10 @@ function SummaryGrid({
   return (
     <div className="grid gap-3 md:grid-cols-4">
       {[
-        { label: 'Current', content: current },
-        { label: 'Assumption', content: assumption },
-        { label: 'Benchmark', content: benchmark },
-        { label: 'Year 5', content: year5 },
+        { label: labels.current, content: current },
+        { label: labels.assumption, content: assumption },
+        { label: labels.benchmark, content: benchmark },
+        { label: labels.year5, content: year5 },
       ].map((item) => (
         <div className="rounded-xl border border-line bg-ivory p-3" key={item.label}>
           <p className="font-editorial text-sm text-mutedInk">{item.label}</p>
@@ -146,6 +148,23 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
         : 'Do you want to enter number of employees / headcount / FTE?',
     capexQuestion:
       lang === 'es' ? '¿Cómo quieres proyectar tus inversiones / CAPEX?' : 'How would you like to project your investments / CAPEX?',
+  };
+
+
+  const summaryT = {
+    labels: {
+      current: lang === 'es' ? 'Actual' : 'Current',
+      assumption: lang === 'es' ? 'Hipótesis' : 'Assumption',
+      benchmark: 'Benchmark',
+      year5: lang === 'es' ? 'Año 5' : 'Year 5',
+    },
+    currentRevenue: lang === 'es' ? 'ventas actuales' : 'current revenue',
+    benchmarkGrowth3y:
+      lang === 'es' ? 'crecimiento anual benchmark de los últimos 3 años' : 'benchmark annual growth over the last 3 years',
+    numberOfComparables: lang === 'es' ? 'número de comparables' : 'number of comparables',
+    geography: lang === 'es' ? 'geografía' : 'geography',
+    projectedYear5Revenue: lang === 'es' ? 'ventas proyectadas en el año 5' : 'projected Year 5 revenue',
+    additionalRevenue: lang === 'es' ? 'ingresos adicionales' : 'additional revenue',
   };
 
   const [showImpact, setShowImpact] = useState(false);
@@ -355,6 +374,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           </div>
 
           <SummaryGrid
+            labels={summaryT.labels}
             assumption={
               <>
                 {revenueMode === 'initial-plus-growth' && <p>{`annual growth: ${formatNumber(revenueGrowth, lang)}%`}</p>}
@@ -365,13 +385,13 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             }
             benchmark={
               <>
-                <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
-                <p>number of comparables: 20</p>
-                <p>geography: Spain</p>
+                <p>{`${summaryT.benchmarkGrowth3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
+                <p>{`${summaryT.numberOfComparables}: 20`}</p>
+                <p>{`${summaryT.geography}: Spain`}</p>
               </>
             }
-            current={<p>{`current revenue: ${formatMoney(baseRevenue, lang)}`}</p>}
-            year5={<p>{`projected Year 5 revenue: ${formatMoney(revenueProjectionYear5, lang)}`}</p>}
+            current={<p>{`${summaryT.currentRevenue}: ${formatMoney(baseRevenue, lang)}`}</p>}
+            year5={<p>{`${summaryT.projectedYear5Revenue}: ${formatMoney(revenueProjectionYear5, lang)}`}</p>}
           />
 
           <button className="rounded-full bg-accent px-5 py-2 font-editorial text-sm text-ivory" onClick={() => setShowImpact(true)} type="button">
@@ -450,6 +470,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             </label>
           )}
           <SummaryGrid
+            labels={summaryT.labels}
             assumption={
               <>
                 {purchasesMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(purchasesRatioCurrent, lang)}%`}</p>}
@@ -461,7 +482,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             benchmark={
               <>
                 <p>{`benchmark Purchases / Revenue: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}%`}</p>
-                <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
+                <p>{`${summaryT.benchmarkGrowth3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
               </>
             }
             current={
@@ -542,6 +563,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             </label>
           )}
           <SummaryGrid
+            labels={summaryT.labels}
             assumption={
               <>
                 {adminMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(adminRatioCurrent, lang)}%`}</p>}
@@ -553,7 +575,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             benchmark={
               <>
                 <p>{`benchmark Administrative Expenses / Revenue: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}%`}</p>
-                <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
+                <p>{`${summaryT.benchmarkGrowth3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
               </>
             }
             current={
@@ -666,6 +688,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 </label>
               )}
               <SummaryGrid
+            labels={summaryT.labels}
                 assumption={
                   <>
                     {fteMode === 'add-employees' && <p>{`additional employees by year: ${additionalEmployees.join(', ')}`}</p>}
@@ -759,6 +782,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 </label>
               )}
               <SummaryGrid
+            labels={summaryT.labels}
                 assumption={
                   <>
                     {personnelMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(personnelRatioCurrent, lang)}%`}</p>}
@@ -770,7 +794,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 benchmark={
                   <>
                     <p>{`benchmark Personnel Expenses / Revenue: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}%`}</p>
-                    <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
+                    <p>{`${summaryT.benchmarkGrowth3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
                   </>
                 }
                 current={
@@ -891,6 +915,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           )}
 
           <SummaryGrid
+            labels={summaryT.labels}
             assumption={
               <>
                 {capexMode === 'investment-plan' && <p>investment plan</p>}
