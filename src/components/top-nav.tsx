@@ -16,11 +16,11 @@ export function TopNav({ lang, currentPath }: Props) {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-line bg-ivory/95 backdrop-blur">
       <nav className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
-        <Link className="block" href={withLang('/', lang)}>
+        <Link className="block font-editorial" href={withLang('/', lang)}>
           <p className="font-editorial text-2xl tracking-premium text-slateInk">{t.brand}</p>
           <p className="text-xs uppercase tracking-[0.15em] text-mutedInk">{t.subtitle}</p>
         </Link>
-        <div className="hidden items-center gap-7 text-sm text-slateInk lg:flex">
+        <div className="hidden items-center gap-7 font-editorial text-sm text-slateInk lg:flex">
           <Link href={withLang('/how-it-works', lang)}>{t.nav.how}</Link>
           <Link href={withLang('/what-we-do', lang)}>{t.nav.what}</Link>
           <Link href={withLang('/who-we-are', lang)}>{t.nav.who}</Link>

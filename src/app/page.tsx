@@ -96,7 +96,7 @@ export default function Home({ searchParams }: Props) {
               <h1 className="max-w-4xl font-editorial text-5xl leading-[1.08] tracking-premium text-slateInk md:text-6xl lg:text-7xl">
                 {copy.hero.headline}
               </h1>
-              <p className="mt-7 max-w-2xl text-lg leading-relaxed text-mutedInk">{copy.hero.body}</p>
+              <p className="mt-7 max-w-2xl font-editorial text-lg leading-relaxed text-mutedInk">{copy.hero.body}</p>
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   className="rounded-full bg-accent px-7 py-3 text-xs uppercase tracking-[0.15em] text-ivory transition hover:bg-slateInk"
@@ -123,7 +123,7 @@ export default function Home({ searchParams }: Props) {
               {copy.usage.cards.map((card) => (
                 <article key={card.title} className="rounded-2xl border border-line bg-white p-7 shadow-whisper">
                   <h3 className="font-editorial text-2xl leading-snug text-slateInk">{card.title}</h3>
-                  <p className="mt-4 text-base leading-relaxed text-mutedInk">{card.body}</p>
+                  <p className="mt-4 font-editorial text-base leading-relaxed text-mutedInk">{card.body}</p>
                 </article>
               ))}
             </div>
@@ -141,7 +141,7 @@ export default function Home({ searchParams }: Props) {
         </section>
 
         <footer id="contact" className="mx-auto max-w-6xl px-6 py-10">
-          <ul className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-mutedInk">
+          <ul className="flex flex-wrap gap-x-8 gap-y-3 font-editorial text-sm text-mutedInk">
             {copy.footerLinks.map((item) => (
               <li key={item}>
                 <a className="hover:text-slateInk" href="#">
