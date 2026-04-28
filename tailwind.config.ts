@@ -16,7 +16,16 @@ const config: Config = {
         accent: '#1c2c44',
       },
       fontFamily: {
-        editorial: ['"Iowan Old Style"', '"Palatino Linotype"', 'Palatino', '"Times New Roman"', 'serif'],
+        editorial: [
+          '"New York"',
+          '"NewYork"',
+          '"New York Large"',
+          '"Iowan Old Style"',
+          '"Palatino Linotype"',
+          'Palatino',
+          '"Times New Roman"',
+          'serif',
+        ],
         body: ['Inter', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
