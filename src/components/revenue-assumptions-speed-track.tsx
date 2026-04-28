@@ -107,8 +107,22 @@ function OptionCard({
   );
 }
 
+type RevenueAssumptionsTranslations = {
+  revenueTitle: string;
+  revenueQuestion: string;
+  addLinesQuestion: string;
+  viewImpact: string;
+  yes: string;
+  no: string;
+  purchasesQuestion: string;
+  adminQuestion: string;
+  personnelQuestion: string;
+  fteQuestion: string;
+  capexQuestion: string;
+};
+
 export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
-  const t = {
+  const t: RevenueAssumptionsTranslations = {
     revenueTitle: lang === 'es' ? 'Hipótesis de ingresos' : 'Revenue assumptions',
     revenueQuestion: lang === 'es' ? '¿Cómo quieres proyectar tus ingresos?' : 'How would you like to project your revenue?',
     addLinesQuestion:
