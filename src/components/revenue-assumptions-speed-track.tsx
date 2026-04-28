@@ -9,7 +9,7 @@ type Props = {
   lang: Language;
 };
 
-type RevenueMode = 'initial-plus-growth' | 'year1-year5' | 'constant-5y';
+type RevenueMode = 'initial-plus-growth' | 'year1-year5' | 'constant-5y' | 'benchmark-growth';
 type CostMode = 'keep-ratio' | 'constant-growth' | 'benchmark-growth' | 'converge-benchmark';
 type PersonnelFteMode = 'add-employees' | 'grow-cost-per-employee' | 'benchmark-cpe-growth' | 'inflation-cpe-growth';
 type CapexMode = 'investment-plan' | 'reinvest-maintain' | 'constant-ratio' | 'converge-benchmark-5y';
@@ -126,7 +126,9 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
     revenueTitle: lang === 'es' ? 'Hipótesis de ingresos' : 'Revenue assumptions',
     revenueQuestion: lang === 'es' ? '¿Cómo quieres proyectar tus ingresos?' : 'How would you like to project your revenue?',
     addLinesQuestion:
-      lang === 'es' ? '¿Quieres meter líneas de ingresos adicionales?' : 'Do you want to add additional revenue lines?',
+      lang === 'es'
+        ? 'Añadir los ingresos adicionales de una nueva línea de negocio'
+        : 'Add additional revenue from a new business line',
     viewImpact: lang === 'es' ? 'Ver impacto' : 'View impact',
     yes: lang === 'es' ? 'Sí' : 'Yes',
     no: lang === 'es' ? 'No' : 'No',
@@ -156,8 +158,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   const [year1Revenue, setYear1Revenue] = useState(BASE_REVENUE * 1.08);
   const [year5RevenueTarget, setYear5RevenueTarget] = useState(147);
   const [constantRevenue, setConstantRevenue] = useState(BASE_REVENUE);
-  const [addRevenueLines, setAddRevenueLines] = useState(false);
-  const [additionalLinesCount, setAdditionalLinesCount] = useState(1);
+  const [additionalRevenueAmount, setAdditionalRevenueAmount] = useState(0);
 
   const [purchasesMode, setPurchasesMode] = useState<CostMode>('keep-ratio');
   const [purchasesGrowth, setPurchasesGrowth] = useState(3);
@@ -186,13 +187,16 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   const revenueProjectionYear5 = useMemo(() => {
     if (revenueMode === 'initial-plus-growth') return baseRevenue * (1 + revenueGrowth / 100) ** 5;
     if (revenueMode === 'year1-year5') return year5RevenueTarget;
+    if (revenueMode === 'benchmark-growth') return baseRevenue * (1 + BENCHMARK_RATE / 100) ** 5;
     return constantRevenue;
   }, [revenueMode, baseRevenue, revenueGrowth, year5RevenueTarget, constantRevenue]);
 
+  const revenueProjectionYear5WithAdditional = revenueProjectionYear5 + additionalRevenueAmount;
+
   const impliedRevenueCagr = useMemo(() => {
-    if (baseRevenue <= 0 || revenueProjectionYear5 <= 0) return null;
-    return (Math.pow(revenueProjectionYear5 / baseRevenue, 1 / 5) - 1) * 100;
-  }, [baseRevenue, revenueProjectionYear5]);
+    if (baseRevenue <= 0 || revenueProjectionYear5WithAdditional <= 0) return null;
+    return (Math.pow(revenueProjectionYear5WithAdditional / baseRevenue, 1 / 5) - 1) * 100;
+  }, [baseRevenue, revenueProjectionYear5WithAdditional]);
 
   const revenueBenchmarkPosition = useMemo(() => {
     if (impliedRevenueCagr === null) return lang === 'es' ? 'en línea' : 'in line';
@@ -238,22 +242,28 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
       <div className="space-y-5">
         <SectionCard title={t.revenueTitle}>
           <p className="font-editorial text-lg text-slateInk">{t.revenueQuestion}</p>
-          <div className="grid gap-2 md:grid-cols-3">
+          <div className="grid gap-2 md:grid-cols-2">
             {[
-              'Valor inicial + crecimiento anual',
-              'Valor inicial en Año 1 + valor final en Año 5',
-              'Valor constante los 5 años',
+              lang === 'es' ? 'Proyectar un crecimiento anual constante a una tasa' : 'Project a constant annual growth rate',
+              lang === 'es' ? 'Tengo un objetivo de ventas que alcanzar dentro de 5 años' : 'I have a revenue target to reach within 5 years',
+              lang === 'es' ? 'No preveo ningún crecimiento' : 'I do not expect any growth',
+              lang === 'es' ? 'Utilizaré el crecimiento del benchmark' : 'I will use benchmark growth',
             ].map((copy, index) => (
               <button
                 className={`rounded-xl border px-3 py-2 text-left font-editorial text-sm ${
                   (index === 0 && revenueMode === 'initial-plus-growth') ||
                   (index === 1 && revenueMode === 'year1-year5') ||
-                  (index === 2 && revenueMode === 'constant-5y')
+                  (index === 2 && revenueMode === 'constant-5y') ||
+                  (index === 3 && revenueMode === 'benchmark-growth')
                     ? 'border-accent bg-ivory'
                     : 'border-line bg-white'
                 }`}
                 key={copy}
-                onClick={() => setRevenueMode(index === 0 ? 'initial-plus-growth' : index === 1 ? 'year1-year5' : 'constant-5y')}
+                onClick={() =>
+                  setRevenueMode(
+                    index === 0 ? 'initial-plus-growth' : index === 1 ? 'year1-year5' : index === 2 ? 'constant-5y' : 'benchmark-growth',
+                  )
+                }
                 type="button"
               >
                 {copy}
@@ -262,20 +272,20 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <label className="text-sm text-mutedInk">
+            <label className="font-editorial text-sm text-mutedInk">
               base revenue
               <input
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                 onChange={(e) => setBaseRevenue(Number(e.target.value) || 0)}
                 type="number"
                 value={baseRevenue}
               />
             </label>
             {revenueMode === 'initial-plus-growth' && (
-              <label className="text-sm text-mutedInk">
+              <label className="font-editorial text-sm text-mutedInk">
                 annual growth
                 <input
-                  className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                   onChange={(e) => setRevenueGrowth(Number(e.target.value) || 0)}
                   type="number"
                   value={revenueGrowth}
@@ -284,19 +294,19 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             )}
             {revenueMode === 'year1-year5' && (
               <>
-                <label className="text-sm text-mutedInk">
+                <label className="font-editorial text-sm text-mutedInk">
                   Valor inicial en Año 1 + valor final en Año 5
                   <input
-                    className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                    className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                     onChange={(e) => setYear1Revenue(Number(e.target.value) || 0)}
                     type="number"
                     value={year1Revenue}
                   />
                 </label>
-                <label className="text-sm text-mutedInk">
+                <label className="font-editorial text-sm text-mutedInk">
                   year 5 revenue
                   <input
-                    className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                    className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                     onChange={(e) => setYear5RevenueTarget(Number(e.target.value) || 0)}
                     type="number"
                     value={year5RevenueTarget}
@@ -305,10 +315,10 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               </>
             )}
             {revenueMode === 'constant-5y' && (
-              <label className="text-sm text-mutedInk">
+              <label className="font-editorial text-sm text-mutedInk">
                 constant value
                 <input
-                  className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                   onChange={(e) => setConstantRevenue(Number(e.target.value) || 0)}
                   type="number"
                   value={constantRevenue}
@@ -317,37 +327,26 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             )}
           </div>
 
-          <p className="font-editorial text-lg text-slateInk">{t.addLinesQuestion}</p>
-          <div className="flex gap-2">
-            <button
-              className={`rounded-full border px-4 py-1 text-sm ${addRevenueLines ? 'border-accent bg-ivory' : 'border-line bg-white'}`}
-              onClick={() => setAddRevenueLines(true)}
-              type="button"
-            >
-              {t.yes}
-            </button>
-            <button
-              className={`rounded-full border px-4 py-1 text-sm ${!addRevenueLines ? 'border-accent bg-ivory' : 'border-line bg-white'}`}
-              onClick={() => setAddRevenueLines(false)}
-              type="button"
-            >
-              {t.no}
-            </button>
-          </div>
-          {addRevenueLines && (
-            <label className="block text-sm text-mutedInk">
-              number of additional lines
+          <div className="rounded-xl border border-line bg-white p-3">
+            <p className="font-editorial text-lg text-slateInk">{t.addLinesQuestion}</p>
+            <p className="font-editorial text-sm text-mutedInk">
+              {lang === 'es'
+                ? 'Introduce el importe adicional en la unidad seleccionada. Este ingreso adicional se mantendrá constante durante los próximos 5 años.'
+                : 'Enter the additional amount in the selected unit. This additional revenue will remain constant over the next 5 years.'}
+            </p>
+            <label className="mt-2 block font-editorial text-sm text-mutedInk">
+              {lang === 'es' ? 'Importe adicional' : 'Additional amount'}
               <input
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2"
-                min={1}
-                onChange={(e) => setAdditionalLinesCount(Math.max(1, Number(e.target.value) || 1))}
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
+                min={0}
+                onChange={(e) => setAdditionalRevenueAmount(Math.max(0, Number(e.target.value) || 0))}
                 type="number"
-                value={additionalLinesCount}
+                value={additionalRevenueAmount}
               />
             </label>
-          )}
+          </div>
 
-          <div className="rounded-xl border border-line bg-ivory p-3">
+          <div className="rounded-xl border border-line bg-ivory p-3 font-editorial">
             <p className="font-editorial text-sm text-slateInk">
               {lang === 'es' ? `Referencia VYM: ${formatNumber(BENCHMARK_RATE, lang)} %` : `VYM reference: ${formatNumber(BENCHMARK_RATE, lang)}%`}
             </p>
@@ -360,7 +359,8 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 {revenueMode === 'initial-plus-growth' && <p>{`annual growth: ${formatNumber(revenueGrowth, lang)}%`}</p>}
                 {revenueMode === 'year1-year5' && <p>{`or implied CAGR: ${formatNumber(impliedRevenueCagr ?? 0, lang)}%`}</p>}
                 {revenueMode === 'constant-5y' && <p>{`or constant value: ${formatMoney(constantRevenue, lang)}`}</p>}
-                <p>{`or number of additional lines: ${addRevenueLines ? additionalLinesCount : 0}`}</p>
+                {revenueMode === 'benchmark-growth' && <p>{`benchmark annual growth: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
+                <p>{`additional revenue: ${formatMoney(additionalRevenueAmount, lang)}`}</p>
               </>
             }
             benchmark={
@@ -371,16 +371,16 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               </>
             }
             current={<p>{`current revenue: ${formatMoney(baseRevenue, lang)}`}</p>}
-            year5={<p>{`projected Year 5 revenue: ${formatMoney(revenueProjectionYear5, lang)}`}</p>}
+            year5={<p>{`projected Year 5 revenue: ${formatMoney(revenueProjectionYear5WithAdditional, lang)}`}</p>}
           />
 
           <button className="rounded-full bg-accent px-5 py-2 font-editorial text-sm text-ivory" onClick={() => setShowImpact(true)} type="button">
             {t.viewImpact}
           </button>
           {showImpact && (
-            <div className="rounded-xl border border-line p-3 text-sm text-slateInk">
+            <div className="rounded-xl border border-line p-3 font-editorial text-sm text-slateInk">
               <p>{`base revenue: ${formatMoney(baseRevenue, lang)}`}</p>
-              <p>{`year 5 revenue: ${formatMoney(revenueProjectionYear5, lang)}`}</p>
+              <p>{`year 5 revenue: ${formatMoney(revenueProjectionYear5WithAdditional, lang)}`}</p>
               <p>{`implied CAGR if applicable: ${impliedRevenueCagr === null ? '—' : `${formatNumber(impliedRevenueCagr, lang)}%`}`}</p>
               <p>{`benchmark position: ${revenueBenchmarkPosition}`}</p>
             </div>
