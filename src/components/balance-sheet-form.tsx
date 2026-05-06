@@ -26,8 +26,8 @@ type BalanceValues = {
 };
 
 const INITIAL_VALUES: BalanceValues = {
-  assets: Array.from({ length: 6 }, () => ''),
-  liabilities: Array.from({ length: 6 }, () => ''),
+  assets: Array.from({ length: 7 }, () => ''),
+  liabilities: Array.from({ length: 7 }, () => ''),
 };
 
 export function BalanceSheetForm({ lang, unitLabel, labels }: Props) {
@@ -88,7 +88,7 @@ export function BalanceSheetForm({ lang, unitLabel, labels }: Props) {
                 <FormattedNumberInput
                   className="no-spinner w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
                   lang={lang}
-                  value={values.assets[index]}
+                  value={values.assets[index] ?? ''}
                   onChange={(value) => setAssetValue(index, value)}
                 />
               </label>
@@ -115,7 +115,7 @@ export function BalanceSheetForm({ lang, unitLabel, labels }: Props) {
                 <FormattedNumberInput
                   className="no-spinner w-full rounded-lg border border-line bg-white px-3 py-2 text-right text-slateInk outline-none transition focus:border-accent"
                   lang={lang}
-                  value={values.liabilities[index]}
+                  value={values.liabilities[index] ?? ''}
                   onChange={(value) => setLiabilityValue(index, value)}
                 />
               </label>
