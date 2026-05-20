@@ -129,30 +129,56 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   const t: RevenueAssumptionsTranslations = {
     summary: { current: lang === 'es' ? 'Actual' : 'Current', assumption: lang === 'es' ? 'Hipótesis' : 'Assumption', benchmark: 'Benchmark', year5: lang === 'es' ? 'Año 5' : 'Year 5' },
     labels: {
-      baseRevenue: lang === 'es' ? 'Ventas iniciales' : 'base revenue',
+      baseRevenue: lang === 'es' ? 'Ventas base' : 'base revenue',
       annualGrowth: lang === 'es' ? 'Crecimiento anual' : 'annual growth',
       additionalRevenue: lang === 'es' ? 'Ingresos adicionales' : 'additional revenue',
       currentRevenue: lang === 'es' ? 'Ventas actuales' : 'current revenue',
-      projectedYear5Revenue: lang === 'es' ? 'Ventas proyectadas para el año 5' : 'projected Year 5 revenue',
-      year5Revenue: lang === 'es' ? 'Ventas en el año 5' : 'year 5 revenue',
+      projectedYear5Revenue: lang === 'es' ? 'Ventas proyectadas en el año 5' : 'projected Year 5 revenue',
+      year5Revenue: lang === 'es' ? 'Ventas año 5' : 'year 5 revenue',
       impliedCagr: lang === 'es' ? 'CAGR implícito, si aplica' : 'implied CAGR if applicable',
-      benchmarkPosition: lang === 'es' ? 'Posición frente a las empresas comparables' : 'benchmark position',
-      benchmarkGrowth3y: lang === 'es' ? 'Crecimiento promedio de empresas comparables de los últimos 3 años' : 'benchmark growth over the last 3 years',
+      benchmarkPosition: lang === 'es' ? 'posición frente a las empresas comparables' : 'benchmark position',
+      benchmarkGrowth3y: lang === 'es' ? 'Crecimiento de empresas comparables de los últimos 3 años' : 'benchmark growth over the last 3 years',
       comparables: lang === 'es' ? 'Número de empresas comparables' : 'number of comparables',
       geography: lang === 'es' ? 'Geografía' : 'geography',
-      currentPurchases: lang === 'es' ? 'Nivel de Compras actual' : 'current purchases',
-      purchasesRevenue: lang === 'es' ? 'Compras/Ventas' : 'purchases / revenue',
-      currentAdmin: lang === 'es' ? 'Total de Gastos Administrativos actuales' : 'current administrative expenses',
-      adminRevenue: lang === 'es' ? 'Gastos Administrativos/Ventas' : 'administrative expenses / revenue',
+      currentPurchases: lang === 'es' ? 'Compras actuales' : 'current purchases',
+      purchasesRevenue: lang === 'es' ? 'Ratio Compras/Ventas' : 'purchases / revenue',
+      currentAdmin: lang === 'es' ? 'Otros Gastos de Explotación actuales' : 'current administrative expenses',
+      adminRevenue: lang === 'es' ? 'Ratio [Otros Gastos de Explotación/Ventas]' : 'administrative expenses / revenue',
       currentFte: lang === 'es' ? 'Número de empleados actuales' : 'current FTE',
       currentPersonnelExpense: lang === 'es' ? 'Gastos de personal actuales' : 'current personnel expense',
-      currentCostPerEmployee: lang === 'es' ? 'Coste por empleado actual' : 'current cost per employee',
+      currentCostPerEmployee: lang === 'es' ? 'Coste actual por empleado' : 'current cost per employee',
       benchmarkCostPerEmployee: lang === 'es' ? 'Coste por empleado de empresas comparables' : 'benchmark cost per employee',
       inflationRef: lang === 'es' ? 'Referencia de inflación 2%, si aplica' : 'inflation reference 2% if applicable',
-      year5Fte: lang === 'es' ? 'Número de empleados en el año 5' : 'Year 5 FTE',
+      year5Fte: lang === 'es' ? 'Ratio [Número de empleados/FTE] año en el año 5' : 'Year 5 FTE',
       year5CostPerEmployee: lang === 'es' ? 'Coste por empleado en el año 5' : 'Year 5 cost per employee',
-      year5TotalPersonnelExpense: lang === 'es' ? 'Gastos totales de personal en el año 5' : 'Year 5 total personnel expense',
-      costPerEmployeeGrowth: lang === 'es' ? 'Crecimiento estimado del Coste por Empleado' : 'cost-per-employee growth',
+      year5TotalPersonnelExpense: lang === 'es' ? 'Gasto total de personal en el año 5' : 'Year 5 total personnel expense',
+      costPerEmployeeGrowth: lang === 'es' ? 'Crecimiento del coste por empleado' : 'cost-per-employee growth',
+
+      currentRatio: lang === 'es' ? 'Current ratio' : 'current ratio',
+      growthRate: lang === 'es' ? 'growth rate' : 'growth rate',
+      benchmarkPlusGrowth: lang === 'es' ? 'benchmark + benchmark growth' : 'benchmark + benchmark growth',
+      linearConvergenceXYears: lang === 'es' ? 'linear convergence in X years' : 'linear convergence in X years',
+      linearConvergence: lang === 'es' ? 'linear convergence' : 'linear convergence',
+      benchmarkPurchasesRevenue: lang === 'es' ? 'Ratio [Compras/Ventas] de empresas comparables' : 'benchmark Purchases / Revenue',
+      year5Purchases: lang === 'es' ? 'Compras en el año 5' : 'Year 5 purchases',
+      year5PurchasesRevenue: lang === 'es' ? 'Ratio [Compras/Ventas] en el año 5' : 'Year 5 Purchases / Revenue',
+      benchmarkAdminRevenue: lang === 'es' ? 'Ratio [Otros Gastos de Explotación/Ventas] de empresas comparables' : 'benchmark Administrative Expenses / Revenue',
+      year5AdminExpenses: lang === 'es' ? 'Otros Gastos de Explotación en el año 5' : 'Year 5 administrative expenses',
+      year5AdminRevenue: lang === 'es' ? 'Ratio [Otros Gastos de Explotación/Ventas] en el año 5' : 'Year 5 Administrative Expenses / Revenue',
+      currentPersonnelRevenue: lang === 'es' ? 'Ratio [Gastos de personal/Ventas] actual' : 'current Personnel Expenses / Revenue',
+      benchmarkPersonnelRevenue: lang === 'es' ? 'Ratio [Gastos de personal/Ventas] de empresas comparables' : 'benchmark Personnel Expenses / Revenue',
+      year5PersonnelExpense: lang === 'es' ? 'Gastos de personal en el año 5' : 'Year 5 personnel expense',
+      year5PersonnelRevenue: lang === 'es' ? 'Ratio [Gastos de personal/Ventas] en el año 5' : 'Year 5 Personnel Expenses / Revenue',
+      benchmarkFixedRevenue: lang === 'es' ? 'Ratio [Activo Fijo/Ventas] de empresas comparables' : 'benchmark Fixed Assets / Revenue',
+      benchmarkIntangibleRevenue: lang === 'es' ? 'Ratio [Activo Intangible/Ventas] de empresas comparables' : 'benchmark Intangible Assets / Revenue',
+      currentFixedAssets: lang === 'es' ? 'Activo Fijo actual' : 'current Fixed Assets',
+      currentIntangibleAssets: lang === 'es' ? 'Activos intangibles actuales' : 'current Intangible Assets',
+      fixedAssetsRevenue: lang === 'es' ? 'Ratio [Activo Fijo/Ventas]' : 'fixed assets / revenue',
+      intangibleAssetsRevenue: lang === 'es' ? 'Ratio [Activo Intangibles/Ventas]' : 'intangible assets / revenue',
+      year5Capex: lang === 'es' ? 'CAPEX en el año 5' : 'Year 5 CAPEX',
+      cumulative5yCapex: lang === 'es' ? 'CAPEX acumulado a los 5 años' : 'cumulative 5-year CAPEX',
+      year5FixedRevenue: lang === 'es' ? 'Ratio [Activo Fijo/Ventas] en el año 5' : 'year 5 fixed assets / revenue',
+      year5IntangibleRevenue: lang === 'es' ? 'Ratio [Activo Intangible/Ventas] en el año 5' : 'year 5 intangible assets / revenue',
     },
     revenueTitle: lang === 'es' ? 'Hipótesis de ingresos' : 'Revenue assumptions',
     revenueQuestion: lang === 'es' ? '¿Cómo quieres proyectar tus ingresos?' : 'How would you like to project your revenue?',
@@ -419,7 +445,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           )}
         </SectionCard>
 
-        <SectionCard title="Purchases / COGS">
+        <SectionCard title={lang === 'es' ? 'Compras / Aprovisionamientos' : 'Purchases / COGS'}>
           <p className="font-editorial text-lg text-slateInk">{t.purchasesQuestion}</p>
           <div className="grid gap-2">
             <OptionCard
@@ -485,15 +511,15 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             labels={t.summary}
             assumption={
               <>
-                {purchasesMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(purchasesRatioCurrent, lang)}%`}</p>}
-                {purchasesMode === 'constant-growth' && <p>{`growth rate: ${formatNumber(purchasesGrowth, lang)}%`}</p>}
-                {purchasesMode === 'benchmark-growth' && <p>{`benchmark + benchmark growth: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}% + ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
-                {purchasesMode === 'converge-benchmark' && <p>{`linear convergence in X years: ${purchasesConvergeYears}`}</p>}
+                {purchasesMode === 'keep-ratio' && <p>{`${t.labels.currentRatio}: ${formatNumber(purchasesRatioCurrent, lang)}%`}</p>}
+                {purchasesMode === 'constant-growth' && <p>{`${t.labels.growthRate}: ${formatNumber(purchasesGrowth, lang)}%`}</p>}
+                {purchasesMode === 'benchmark-growth' && <p>{`${t.labels.benchmarkPlusGrowth}: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}% + ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
+                {purchasesMode === 'converge-benchmark' && <p>{`${t.labels.linearConvergenceXYears}: ${purchasesConvergeYears}`}</p>}
               </>
             }
             benchmark={
               <>
-                <p>{`benchmark Purchases / Revenue: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}%`}</p>
+                <p>{`${t.labels.benchmarkPurchasesRevenue}: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}%`}</p>
                 <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
               </>
             }
@@ -505,14 +531,14 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             }
             year5={
               <>
-                <p>{`Year 5 purchases: ${formatMoney(CURRENT_PURCHASES * 1.1, lang)}`}</p>
-                <p>{`Year 5 Purchases / Revenue: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}%`}</p>
+                <p>{`${t.labels.year5Purchases}: ${formatMoney(CURRENT_PURCHASES * 1.1, lang)}`}</p>
+                <p>{`${t.labels.year5PurchasesRevenue}: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}%`}</p>
               </>
             }
           />
         </SectionCard>
 
-        <SectionCard title="Administrative expenses">
+        <SectionCard title={lang === 'es' ? 'Gastos Administrativos' : 'Administrative expenses'}>
           <p className="font-editorial text-lg text-slateInk">{t.adminQuestion}</p>
           <div className="grid gap-2">
             <OptionCard
@@ -578,15 +604,15 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             labels={t.summary}
             assumption={
               <>
-                {adminMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(adminRatioCurrent, lang)}%`}</p>}
-                {adminMode === 'constant-growth' && <p>{`growth rate: ${formatNumber(adminGrowth, lang)}%`}</p>}
-                {adminMode === 'benchmark-growth' && <p>{`benchmark + benchmark growth: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}% + ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
-                {adminMode === 'converge-benchmark' && <p>{`linear convergence: ${adminConvergeYears} years`}</p>}
+                {adminMode === 'keep-ratio' && <p>{`${t.labels.currentRatio}: ${formatNumber(adminRatioCurrent, lang)}%`}</p>}
+                {adminMode === 'constant-growth' && <p>{`${t.labels.growthRate}: ${formatNumber(adminGrowth, lang)}%`}</p>}
+                {adminMode === 'benchmark-growth' && <p>{`${t.labels.benchmarkPlusGrowth}: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}% + ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
+                {adminMode === 'converge-benchmark' && <p>{`${t.labels.linearConvergence}: ${adminConvergeYears} years`}</p>}
               </>
             }
             benchmark={
               <>
-                <p>{`benchmark Administrative Expenses / Revenue: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}%`}</p>
+                <p>{`${t.labels.benchmarkAdminRevenue}: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}%`}</p>
                 <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
               </>
             }
@@ -598,14 +624,14 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             }
             year5={
               <>
-                <p>{`Year 5 administrative expenses: ${formatMoney(CURRENT_ADMIN * 1.1, lang)}`}</p>
-                <p>{`Year 5 Administrative Expenses / Revenue: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}%`}</p>
+                <p>{`${t.labels.year5AdminExpenses}: ${formatMoney(CURRENT_ADMIN * 1.1, lang)}`}</p>
+                <p>{`${t.labels.year5AdminRevenue}: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}%`}</p>
               </>
             }
           />
         </SectionCard>
 
-        <SectionCard title="Personnel expenses">
+        <SectionCard title={lang === 'es' ? 'Gastos de Personal' : 'Personnel expenses'}>
           <p className="font-editorial text-lg text-slateInk">{t.personnelQuestion}</p>
           <p className="font-editorial text-base text-slateInk">{t.fteQuestion}</p>
           <div className="flex gap-2">
@@ -711,8 +737,8 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 }
                 benchmark={
                   <>
-                    <p>{`benchmark cost per employee: ${new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(BENCHMARK_PEOPLE_COST)}`}</p>
-                    <p>{`inflation reference 2% if applicable: ${INFLATION_REF}%`}</p>
+                    <p>{`${t.labels.benchmarkCostPerEmployee}: ${new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(BENCHMARK_PEOPLE_COST)}`}</p>
+                    <p>{`${t.labels.inflationRef}: ${INFLATION_REF}%`}</p>
                   </>
                 }
                 current={
@@ -797,28 +823,28 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 labels={t.summary}
                 assumption={
                   <>
-                    {personnelMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(personnelRatioCurrent, lang)}%`}</p>}
-                    {personnelMode === 'constant-growth' && <p>{`growth rate: ${formatNumber(personnelGrowth, lang)}%`}</p>}
-                    {personnelMode === 'benchmark-growth' && <p>{`benchmark + benchmark growth: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}% + ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
-                    {personnelMode === 'converge-benchmark' && <p>{`linear convergence in X years: ${personnelConvergeYears}`}</p>}
+                    {personnelMode === 'keep-ratio' && <p>{`${t.labels.currentRatio}: ${formatNumber(personnelRatioCurrent, lang)}%`}</p>}
+                    {personnelMode === 'constant-growth' && <p>{`${t.labels.growthRate}: ${formatNumber(personnelGrowth, lang)}%`}</p>}
+                    {personnelMode === 'benchmark-growth' && <p>{`${t.labels.benchmarkPlusGrowth}: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}% + ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
+                    {personnelMode === 'converge-benchmark' && <p>{`${t.labels.linearConvergenceXYears}: ${personnelConvergeYears}`}</p>}
                   </>
                 }
                 benchmark={
                   <>
-                    <p>{`benchmark Personnel Expenses / Revenue: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}%`}</p>
+                    <p>{`${t.labels.benchmarkPersonnelRevenue}: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}%`}</p>
                     <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
                   </>
                 }
                 current={
                   <>
                     <p>{`${t.labels.currentPersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL, lang)}`}</p>
-                    <p>{`current Personnel Expenses / Revenue: ${formatNumber(personnelRatioCurrent, lang)}%`}</p>
+                    <p>{`${t.labels.currentPersonnelRevenue}: ${formatNumber(personnelRatioCurrent, lang)}%`}</p>
                   </>
                 }
                 year5={
                   <>
-                    <p>{`Year 5 personnel expense: ${formatMoney(CURRENT_PERSONNEL * 1.1, lang)}`}</p>
-                    <p>{`Year 5 Personnel Expenses / Revenue: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}%`}</p>
+                    <p>{`${t.labels.year5PersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL * 1.1, lang)}`}</p>
+                    <p>{`${t.labels.year5PersonnelRevenue}: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}%`}</p>
                   </>
                 }
               />
@@ -938,24 +964,24 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             }
             benchmark={
               <>
-                <p>{`benchmark Fixed Assets / Revenue: ${formatNumber(BENCHMARK_FIXED_RATIO, lang)}%`}</p>
-                <p>{`benchmark Intangible Assets / Revenue: ${formatNumber(BENCHMARK_INTANGIBLE_RATIO, lang)}%`}</p>
+                <p>{`${t.labels.benchmarkFixedRevenue}: ${formatNumber(BENCHMARK_FIXED_RATIO, lang)}%`}</p>
+                <p>{`${t.labels.benchmarkIntangibleRevenue}: ${formatNumber(BENCHMARK_INTANGIBLE_RATIO, lang)}%`}</p>
               </>
             }
             current={
               <>
-                <p>{`current Fixed Assets: ${formatMoney(CURRENT_FIXED_ASSETS, lang)}`}</p>
-                <p>{`current Intangible Assets: ${formatMoney(CURRENT_INTANGIBLE_ASSETS, lang)}`}</p>
-                <p>{`current Fixed Assets / Revenue: ${formatNumber((CURRENT_FIXED_ASSETS / BASE_REVENUE) * 100, lang)}%`}</p>
-                <p>{`current Intangible Assets / Revenue: ${formatNumber((CURRENT_INTANGIBLE_ASSETS / BASE_REVENUE) * 100, lang)}%`}</p>
+                <p>{`${t.labels.currentFixedAssets}: ${formatMoney(CURRENT_FIXED_ASSETS, lang)}`}</p>
+                <p>{`${t.labels.currentIntangibleAssets}: ${formatMoney(CURRENT_INTANGIBLE_ASSETS, lang)}`}</p>
+                <p>{`${t.labels.fixedAssetsRevenue}: ${formatNumber((CURRENT_FIXED_ASSETS / BASE_REVENUE) * 100, lang)}%`}</p>
+                <p>{`${t.labels.intangibleAssetsRevenue}: ${formatNumber((CURRENT_INTANGIBLE_ASSETS / BASE_REVENUE) * 100, lang)}%`}</p>
               </>
             }
             year5={
               <>
-                <p>{`Year 5 CAPEX: ${formatMoney(fixedPlan[4] + intangiblePlan[4], lang)}`}</p>
-                <p>{`cumulative 5-year CAPEX: ${formatMoney([...fixedPlan, ...intangiblePlan].reduce((a, b) => a + b, 0), lang)}`}</p>
-                <p>{`Year 5 Fixed Assets / Revenue: ${formatNumber(fixedRatio, lang)}%`}</p>
-                <p>{`Year 5 Intangible Assets / Revenue: ${formatNumber(intangibleRatio, lang)}%`}</p>
+                <p>{`${t.labels.year5Capex}: ${formatMoney(fixedPlan[4] + intangiblePlan[4], lang)}`}</p>
+                <p>{`${t.labels.cumulative5yCapex}: ${formatMoney([...fixedPlan, ...intangiblePlan].reduce((a, b) => a + b, 0), lang)}`}</p>
+                <p>{`${t.labels.year5FixedRevenue}: ${formatNumber(fixedRatio, lang)}%`}</p>
+                <p>{`${t.labels.year5IntangibleRevenue}: ${formatNumber(intangibleRatio, lang)}%`}</p>
               </>
             }
           />
