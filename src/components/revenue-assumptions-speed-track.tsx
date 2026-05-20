@@ -139,7 +139,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
       benchmarkPosition: lang === 'es' ? 'posición frente a las empresas comparables' : 'benchmark position',
       benchmarkGrowth3y: lang === 'es' ? 'Crecimiento de empresas comparables de los últimos 3 años' : 'benchmark growth over the last 3 years',
       comparables: lang === 'es' ? 'Número de empresas comparables' : 'number of comparables',
-      geography: lang === 'es' ? 'Geografía' : 'geography',
+      geography: lang === 'es' ? 'Geografía: España' : 'geography: Spain',
       currentPurchases: lang === 'es' ? 'Compras actuales' : 'current purchases',
       purchasesRevenue: lang === 'es' ? 'Ratio Compras/Ventas' : 'purchases / revenue',
       currentAdmin: lang === 'es' ? 'Otros Gastos de Explotación actuales' : 'current administrative expenses',
@@ -179,6 +179,15 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
       cumulative5yCapex: lang === 'es' ? 'CAPEX acumulado a los 5 años' : 'cumulative 5-year CAPEX',
       year5FixedRevenue: lang === 'es' ? 'Ratio [Activo Fijo/Ventas] en el año 5' : 'year 5 fixed assets / revenue',
       year5IntangibleRevenue: lang === 'es' ? 'Ratio [Activo Intangible/Ventas] en el año 5' : 'year 5 intangible assets / revenue',
+      benchmarkGrowthLast3y: lang === 'es' ? 'Crecimiento del benchmark en los últimos 3 años' : 'benchmark growth over the last 3 years',
+      annualGrowthLabel: lang === 'es' ? 'Crecimiento anual %' : 'annual growth %',
+      xYears: lang === 'es' ? 'X años' : 'X years',
+      yearLabel: lang === 'es' ? 'Año' : 'Year',
+      fixedAssets: lang === 'es' ? 'Activo Fijo' : 'Fixed Assets',
+      intangibleAssets: lang === 'es' ? 'Activos Intangibles' : 'Intangible Assets',
+      fixedAssetsRevenueLabel: lang === 'es' ? 'Ratio [Activo Fijo/Ventas]' : 'Fixed Assets / Revenue',
+      intangibleAssetsRevenueLabel: lang === 'es' ? 'Ratio [Activos Intangibles/Ventas]' : 'Intangible Assets / Revenue',
+      investmentPlan: lang === 'es' ? 'Plan de Inversiones' : 'investment plan',
     },
     revenueTitle: lang === 'es' ? 'Hipótesis de ingresos' : 'Revenue assumptions',
     revenueQuestion: lang === 'es' ? '¿Cómo quieres proyectar tus ingresos?' : 'How would you like to project your revenue?',
@@ -414,10 +423,10 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             labels={t.summary}
             assumption={
               <>
-                {revenueMode === 'initial-plus-growth' && <p>{`annual growth: ${formatNumber(revenueGrowth, lang)}%`}</p>}
+                {revenueMode === 'initial-plus-growth' && <p>{`${t.labels.annualGrowth}: ${formatNumber(revenueGrowth, lang)}%`}</p>}
                 {revenueMode === 'year1-year5' && <p>{`or implied CAGR: ${formatNumber(impliedRevenueCagr ?? 0, lang)}%`}</p>}
                 {revenueMode === 'constant-5y' && <p>{`or constant value: ${formatMoney(constantRevenue, lang)}`}</p>}
-                {revenueMode === 'benchmark-growth' && <p>{`benchmark annual growth: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
+                {revenueMode === 'benchmark-growth' && <p>{`Benchmark ${t.labels.annualGrowth.toLowerCase()}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
                 <p>{`${t.labels.additionalRevenue}: ${formatMoney(additionalRevenueAmount, lang)}`}</p>
               </>
             }
@@ -425,7 +434,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               <>
                 <p>{`${t.labels.benchmarkGrowth3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
                 <p>{`${t.labels.comparables}: 20`}</p>
-                <p>{`${t.labels.geography}: Spain`}</p>
+                <p>{t.labels.geography}</p>
               </>
             }
             current={<p>{`${t.labels.currentRevenue}: ${formatMoney(baseRevenue, lang)}`}</p>}
@@ -491,13 +500,13 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           </div>
           {purchasesMode === 'constant-growth' && (
             <label className="block text-sm text-mutedInk">
-              annual growth %
+              {t.labels.annualGrowthLabel}
               <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setPurchasesGrowth(Number(e.target.value) || 0)} type="number" value={purchasesGrowth} />
             </label>
           )}
           {purchasesMode === 'converge-benchmark' && (
             <label className="block text-sm text-mutedInk">
-              X years
+              {t.labels.xYears}
               <input
                 className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2"
                 min={1}
@@ -520,7 +529,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             benchmark={
               <>
                 <p>{`${t.labels.benchmarkPurchasesRevenue}: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}%`}</p>
-                <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
+                <p>{`${t.labels.benchmarkGrowthLast3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
               </>
             }
             current={
@@ -584,13 +593,13 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           </div>
           {adminMode === 'constant-growth' && (
             <label className="block text-sm text-mutedInk">
-              annual growth %
+              {t.labels.annualGrowthLabel}
               <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setAdminGrowth(Number(e.target.value) || 0)} type="number" value={adminGrowth} />
             </label>
           )}
           {adminMode === 'converge-benchmark' && (
             <label className="block text-sm text-mutedInk">
-              X years
+              {t.labels.xYears}
               <input
                 className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2"
                 min={1}
@@ -607,13 +616,13 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 {adminMode === 'keep-ratio' && <p>{`${t.labels.currentRatio}: ${formatNumber(adminRatioCurrent, lang)}%`}</p>}
                 {adminMode === 'constant-growth' && <p>{`${t.labels.growthRate}: ${formatNumber(adminGrowth, lang)}%`}</p>}
                 {adminMode === 'benchmark-growth' && <p>{`${t.labels.benchmarkPlusGrowth}: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}% + ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
-                {adminMode === 'converge-benchmark' && <p>{`${t.labels.linearConvergence}: ${adminConvergeYears} years`}</p>}
+                {adminMode === 'converge-benchmark' && <p>{`${t.labels.linearConvergence}: ${adminConvergeYears} ${lang === 'es' ? 'años' : 'years'}`}</p>}
               </>
             }
             benchmark={
               <>
                 <p>{`${t.labels.benchmarkAdminRevenue}: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}%`}</p>
-                <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
+                <p>{`${t.labels.benchmarkGrowthLast3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
               </>
             }
             current={
@@ -699,7 +708,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 <div className="grid gap-2 sm:grid-cols-5">
                   {YEARS.map((year, index) => (
                     <label className="text-sm text-mutedInk" key={`add-emp-${year}`}>
-                      {`Year ${year}`}
+                      {`${t.labels.yearLabel} ${year}`}
                       <input
                         className="no-spinner mt-1 w-full rounded-lg border border-line px-2 py-2"
                         onChange={(e) => {
@@ -803,13 +812,13 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               </div>
               {personnelMode === 'constant-growth' && (
                 <label className="block text-sm text-mutedInk">
-                  annual growth %
+                  {t.labels.annualGrowthLabel}
                   <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setPersonnelGrowth(Number(e.target.value) || 0)} type="number" value={personnelGrowth} />
                 </label>
               )}
               {personnelMode === 'converge-benchmark' && (
                 <label className="block text-sm text-mutedInk">
-                  X years
+                  {t.labels.xYears}
                   <input
                     className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2"
                     min={1}
@@ -832,7 +841,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 benchmark={
                   <>
                     <p>{`${t.labels.benchmarkPersonnelRevenue}: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}%`}</p>
-                    <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
+                    <p>{`${t.labels.benchmarkGrowthLast3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
                   </>
                 }
                 current={
@@ -899,11 +908,11 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
 
           {capexMode === 'investment-plan' && (
             <div className="space-y-2">
-              <p className="text-sm text-mutedInk">Activo Fijo / Fixed Assets</p>
+              <p className="text-sm text-mutedInk">{t.labels.fixedAssets}</p>
               <div className="grid gap-2 sm:grid-cols-5">
                 {YEARS.map((year, index) => (
                   <label className="text-sm text-mutedInk" key={`fixed-${year}`}>
-                    {`Year ${year}`}
+                    {`${t.labels.yearLabel} ${year}`}
                     <input
                       className="no-spinner mt-1 w-full rounded-lg border border-line px-2 py-2"
                       onChange={(e) => {
@@ -918,11 +927,11 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 ))}
               </div>
 
-              <p className="text-sm text-mutedInk">Activos Intangibles / Intangible Assets</p>
+              <p className="text-sm text-mutedInk">{t.labels.intangibleAssets}</p>
               <div className="grid gap-2 sm:grid-cols-5">
                 {YEARS.map((year, index) => (
                   <label className="text-sm text-mutedInk" key={`intangible-${year}`}>
-                    {`Year ${year}`}
+                    {`${t.labels.yearLabel} ${year}`}
                     <input
                       className="no-spinner mt-1 w-full rounded-lg border border-line px-2 py-2"
                       onChange={(e) => {
@@ -942,11 +951,11 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           {capexMode === 'constant-ratio' && (
             <div className="grid gap-3 md:grid-cols-2">
               <label className="text-sm text-mutedInk">
-                Fixed Assets / Revenue
+                {t.labels.fixedAssetsRevenueLabel}
                 <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setFixedRatio(Number(e.target.value) || 0)} type="number" value={fixedRatio} />
               </label>
               <label className="text-sm text-mutedInk">
-                Intangible Assets / Revenue
+                {t.labels.intangibleAssetsRevenueLabel}
                 <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setIntangibleRatio(Number(e.target.value) || 0)} type="number" value={intangibleRatio} />
               </label>
             </div>
@@ -956,7 +965,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             labels={t.summary}
             assumption={
               <>
-                {capexMode === 'investment-plan' && <p>investment plan</p>}
+                {capexMode === 'investment-plan' && <p>{t.labels.investmentPlan}</p>}
                 {capexMode === 'reinvest-maintain' && <p>CAPEX = depreciation</p>}
                 {capexMode === 'constant-ratio' && <p>constant ratio</p>}
                 {capexMode === 'converge-benchmark-5y' && <p>benchmark convergence</p>}
