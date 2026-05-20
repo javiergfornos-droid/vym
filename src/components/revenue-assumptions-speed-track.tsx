@@ -123,6 +123,7 @@ type RevenueAssumptionsTranslations = {
   personnelQuestion: string;
   fteQuestion: string;
   capexQuestion: string;
+  amortizationQuestion: string;
 };
 
 export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
@@ -188,6 +189,17 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
       fixedAssetsRevenueLabel: lang === 'es' ? 'Ratio [Activo Fijo/Ventas]' : 'Fixed Assets / Revenue',
       intangibleAssetsRevenueLabel: lang === 'es' ? 'Ratio [Activos Intangibles/Ventas]' : 'Intangible Assets / Revenue',
       investmentPlan: lang === 'es' ? 'Plan de Inversiones' : 'investment plan',
+      currentAmortization: lang === 'es' ? 'Amortizaciones actuales' : 'Current depreciation and amortization',
+      currentAmortizableAssets: lang === 'es' ? 'Activos amortizables actuales' : 'Current amortizable assets',
+      amortizationOverAmortizableAssets:
+        lang === 'es' ? 'Amortizaciones / activos amortizables' : 'Depreciation and amortization / amortizable assets',
+      amortizationOverRevenue: lang === 'es' ? 'Amortizaciones / ventas' : 'Depreciation and amortization / revenue',
+      amortizationRatioAssumption: lang === 'es' ? 'Ratio sobre activos amortizables' : 'Ratio over amortizable assets',
+      amortizationOverRevenueBenchmark:
+        lang === 'es' ? 'Amortizaciones / ventas benchmark' : 'Benchmark depreciation and amortization / revenue',
+      year5Amortization: lang === 'es' ? 'Amortizaciones año 5' : 'Year 5 depreciation and amortization',
+      year5AmortizationOverRevenue:
+        lang === 'es' ? 'Amortizaciones / ventas año 5' : 'Year 5 depreciation and amortization / revenue',
     },
     revenueTitle: lang === 'es' ? 'Hipótesis de ingresos' : 'Revenue assumptions',
     revenueQuestion: lang === 'es' ? '¿Cómo quieres proyectar tus ingresos?' : 'How would you like to project your revenue?',
@@ -214,6 +226,10 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
         : 'Do you want to enter number of employees / headcount / FTE?',
     capexQuestion:
       lang === 'es' ? '¿Cómo quieres proyectar tus inversiones / CAPEX?' : 'How would you like to project your investments / CAPEX?',
+    amortizationQuestion:
+      lang === 'es'
+        ? '¿Cómo quieres proyectar las amortizaciones?'
+        : 'How would you like to project depreciation and amortization?',
   };
 
   const [showImpact, setShowImpact] = useState(false);
@@ -258,6 +274,14 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   }, [revenueMode, baseRevenue, revenueGrowth, year5RevenueTarget, constantRevenue]);
 
   const revenueProjectionYear5WithAdditional = revenueProjectionYear5 + additionalRevenueAmount;
+  const currentAmortization = DEPRECIATION_PROXY[0];
+  const currentAmortizableAssets = CURRENT_FIXED_ASSETS + CURRENT_INTANGIBLE_ASSETS;
+  const currentAmortizationRatio = currentAmortizableAssets > 0 ? currentAmortization / currentAmortizableAssets : 0;
+  const currentAmortizationRevenueRatio = BASE_REVENUE > 0 ? (currentAmortization / BASE_REVENUE) * 100 : 0;
+  const projectedYear5AmortizableAssets = currentAmortizableAssets + fixedPlan.reduce((a, b) => a + b, 0) + intangiblePlan.reduce((a, b) => a + b, 0);
+  const projectedYear5Amortization = projectedYear5AmortizableAssets * currentAmortizationRatio;
+  const year5AmortizationRevenueRatio = revenueProjectionYear5WithAdditional > 0 ? (projectedYear5Amortization / revenueProjectionYear5WithAdditional) * 100 : 0;
+  const benchmarkAmortizationRevenueRatio = currentAmortizationRevenueRatio;
 
   const impliedRevenueCagr = useMemo(() => {
     if (baseRevenue <= 0 || revenueProjectionYear5WithAdditional <= 0) return null;
@@ -991,6 +1015,49 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 <p>{`${t.labels.cumulative5yCapex}: ${formatMoney([...fixedPlan, ...intangiblePlan].reduce((a, b) => a + b, 0), lang)}`}</p>
                 <p>{`${t.labels.year5FixedRevenue}: ${formatNumber(fixedRatio, lang)}%`}</p>
                 <p>{`${t.labels.year5IntangibleRevenue}: ${formatNumber(intangibleRatio, lang)}%`}</p>
+              </>
+            }
+          />
+        </SectionCard>
+
+        <SectionCard title={lang === 'es' ? 'Amortizaciones' : 'Depreciation & amortization'}>
+          <p className="font-editorial text-lg text-slateInk">{t.amortizationQuestion}</p>
+          <div className="rounded-xl border border-accent bg-ivory p-3">
+            <p className="font-editorial text-[15px] text-slateInk">
+              {lang === 'es'
+                ? 'Proyectar amortizaciones como porcentaje de activos amortizables'
+                : 'Project depreciation and amortization as a percentage of amortizable assets'}
+            </p>
+            <p className="mt-1 text-sm text-mutedInk">
+              {lang === 'es'
+                ? 'Usaremos el ratio actual de amortizaciones sobre activos amortizables de tu empresa.'
+                : 'We will use your company’s current depreciation and amortization ratio over amortizable assets.'}
+            </p>
+          </div>
+          <p className="text-sm text-mutedInk">
+            {lang === 'es' ? 'Activos amortizables = Inmovilizado Fijo + Activos Intangibles' : 'Amortizable assets = Fixed Assets + Intangible Assets'}
+          </p>
+          <SummaryGrid
+            labels={t.summary}
+            assumption={<p>{`${t.labels.amortizationRatioAssumption}: ${formatNumber(currentAmortizationRatio * 100, lang)}%`}</p>}
+            benchmark={
+              <>
+                <p>Benchmark</p>
+                <p>{`${t.labels.amortizationOverRevenueBenchmark}: ${formatNumber(benchmarkAmortizationRevenueRatio, lang)}%`}</p>
+              </>
+            }
+            current={
+              <>
+                <p>{`${t.labels.currentAmortization}: ${formatMoney(currentAmortization, lang)}`}</p>
+                <p>{`${t.labels.currentAmortizableAssets}: ${formatMoney(currentAmortizableAssets, lang)}`}</p>
+                <p>{`${t.labels.amortizationOverAmortizableAssets}: ${formatNumber(currentAmortizationRatio * 100, lang)}%`}</p>
+                <p>{`${t.labels.amortizationOverRevenue}: ${formatNumber(currentAmortizationRevenueRatio, lang)}%`}</p>
+              </>
+            }
+            year5={
+              <>
+                <p>{`${t.labels.year5Amortization}: ${formatMoney(projectedYear5Amortization, lang)}`}</p>
+                <p>{`${t.labels.year5AmortizationOverRevenue}: ${formatNumber(year5AmortizationRevenueRatio, lang)}%`}</p>
               </>
             }
           />
