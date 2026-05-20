@@ -57,11 +57,13 @@ function SectionCard({ title, children }: { title: string; children: ReactNode }
 }
 
 function SummaryGrid({
+  labels,
   current,
   assumption,
   benchmark,
   year5,
 }: {
+  labels: { current: string; assumption: string; benchmark: string; year5: string };
   current: ReactNode;
   assumption: ReactNode;
   benchmark: ReactNode;
@@ -70,10 +72,10 @@ function SummaryGrid({
   return (
     <div className="grid gap-3 md:grid-cols-4">
       {[
-        { label: 'Current', content: current },
-        { label: 'Assumption', content: assumption },
-        { label: 'Benchmark', content: benchmark },
-        { label: 'Year 5', content: year5 },
+        { label: labels.current, content: current },
+        { label: labels.assumption, content: assumption },
+        { label: labels.benchmark, content: benchmark },
+        { label: labels.year5, content: year5 },
       ].map((item) => (
         <div className="rounded-xl border border-line bg-ivory p-3" key={item.label}>
           <p className="font-editorial text-sm text-mutedInk">{item.label}</p>
@@ -108,6 +110,8 @@ function OptionCard({
 }
 
 type RevenueAssumptionsTranslations = {
+  summary: { current: string; assumption: string; benchmark: string; year5: string };
+  labels: Record<string, string>;
   revenueTitle: string;
   revenueQuestion: string;
   addLinesQuestion: string;
@@ -123,6 +127,33 @@ type RevenueAssumptionsTranslations = {
 
 export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   const t: RevenueAssumptionsTranslations = {
+    summary: { current: lang === 'es' ? 'Actual' : 'Current', assumption: lang === 'es' ? 'Hipótesis' : 'Assumption', benchmark: 'Benchmark', year5: lang === 'es' ? 'Año 5' : 'Year 5' },
+    labels: {
+      baseRevenue: lang === 'es' ? 'Ventas iniciales' : 'base revenue',
+      annualGrowth: lang === 'es' ? 'Crecimiento anual' : 'annual growth',
+      additionalRevenue: lang === 'es' ? 'Ingresos adicionales' : 'additional revenue',
+      currentRevenue: lang === 'es' ? 'Ventas actuales' : 'current revenue',
+      projectedYear5Revenue: lang === 'es' ? 'Ventas proyectadas para el año 5' : 'projected Year 5 revenue',
+      year5Revenue: lang === 'es' ? 'Ventas en el año 5' : 'year 5 revenue',
+      impliedCagr: lang === 'es' ? 'CAGR implícito, si aplica' : 'implied CAGR if applicable',
+      benchmarkPosition: lang === 'es' ? 'Posición frente a las empresas comparables' : 'benchmark position',
+      benchmarkGrowth3y: lang === 'es' ? 'Crecimiento promedio de empresas comparables de los últimos 3 años' : 'benchmark growth over the last 3 years',
+      comparables: lang === 'es' ? 'Número de empresas comparables' : 'number of comparables',
+      geography: lang === 'es' ? 'Geografía' : 'geography',
+      currentPurchases: lang === 'es' ? 'Nivel de Compras actual' : 'current purchases',
+      purchasesRevenue: lang === 'es' ? 'Compras/Ventas' : 'purchases / revenue',
+      currentAdmin: lang === 'es' ? 'Total de Gastos Administrativos actuales' : 'current administrative expenses',
+      adminRevenue: lang === 'es' ? 'Gastos Administrativos/Ventas' : 'administrative expenses / revenue',
+      currentFte: lang === 'es' ? 'Número de empleados actuales' : 'current FTE',
+      currentPersonnelExpense: lang === 'es' ? 'Gastos de personal actuales' : 'current personnel expense',
+      currentCostPerEmployee: lang === 'es' ? 'Coste por empleado actual' : 'current cost per employee',
+      benchmarkCostPerEmployee: lang === 'es' ? 'Coste por empleado de empresas comparables' : 'benchmark cost per employee',
+      inflationRef: lang === 'es' ? 'Referencia de inflación 2%, si aplica' : 'inflation reference 2% if applicable',
+      year5Fte: lang === 'es' ? 'Número de empleados en el año 5' : 'Year 5 FTE',
+      year5CostPerEmployee: lang === 'es' ? 'Coste por empleado en el año 5' : 'Year 5 cost per employee',
+      year5TotalPersonnelExpense: lang === 'es' ? 'Gastos totales de personal en el año 5' : 'Year 5 total personnel expense',
+      costPerEmployeeGrowth: lang === 'es' ? 'Crecimiento estimado del Coste por Empleado' : 'cost-per-employee growth',
+    },
     revenueTitle: lang === 'es' ? 'Hipótesis de ingresos' : 'Revenue assumptions',
     revenueQuestion: lang === 'es' ? '¿Cómo quieres proyectar tus ingresos?' : 'How would you like to project your revenue?',
     addLinesQuestion:
@@ -273,9 +304,9 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
 
           <div className="grid gap-3 md:grid-cols-2">
             <label className="font-editorial text-sm text-mutedInk">
-              base revenue
+              {t.labels.baseRevenue}
               <input
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
+                className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                 onChange={(e) => setBaseRevenue(Number(e.target.value) || 0)}
                 type="number"
                 value={baseRevenue}
@@ -283,9 +314,9 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             </label>
             {revenueMode === 'initial-plus-growth' && (
               <label className="font-editorial text-sm text-mutedInk">
-                annual growth
+                {t.labels.annualGrowth}
                 <input
-                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
+                  className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                   onChange={(e) => setRevenueGrowth(Number(e.target.value) || 0)}
                   type="number"
                   value={revenueGrowth}
@@ -297,16 +328,16 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 <label className="font-editorial text-sm text-mutedInk">
                   Valor inicial en Año 1 + valor final en Año 5
                   <input
-                    className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
+                    className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                     onChange={(e) => setYear1Revenue(Number(e.target.value) || 0)}
                     type="number"
                     value={year1Revenue}
                   />
                 </label>
                 <label className="font-editorial text-sm text-mutedInk">
-                  year 5 revenue
+                  {t.labels.year5Revenue}
                   <input
-                    className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
+                    className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                     onChange={(e) => setYear5RevenueTarget(Number(e.target.value) || 0)}
                     type="number"
                     value={year5RevenueTarget}
@@ -318,7 +349,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               <label className="font-editorial text-sm text-mutedInk">
                 constant value
                 <input
-                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
+                  className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                   onChange={(e) => setConstantRevenue(Number(e.target.value) || 0)}
                   type="number"
                   value={constantRevenue}
@@ -337,7 +368,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             <label className="mt-2 block font-editorial text-sm text-mutedInk">
               {lang === 'es' ? 'Importe adicional' : 'Additional amount'}
               <input
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
+                className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
                 min={0}
                 onChange={(e) => setAdditionalRevenueAmount(Math.max(0, Number(e.target.value) || 0))}
                 type="number"
@@ -354,24 +385,25 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           </div>
 
           <SummaryGrid
+            labels={t.summary}
             assumption={
               <>
                 {revenueMode === 'initial-plus-growth' && <p>{`annual growth: ${formatNumber(revenueGrowth, lang)}%`}</p>}
                 {revenueMode === 'year1-year5' && <p>{`or implied CAGR: ${formatNumber(impliedRevenueCagr ?? 0, lang)}%`}</p>}
                 {revenueMode === 'constant-5y' && <p>{`or constant value: ${formatMoney(constantRevenue, lang)}`}</p>}
                 {revenueMode === 'benchmark-growth' && <p>{`benchmark annual growth: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
-                <p>{`additional revenue: ${formatMoney(additionalRevenueAmount, lang)}`}</p>
+                <p>{`${t.labels.additionalRevenue}: ${formatMoney(additionalRevenueAmount, lang)}`}</p>
               </>
             }
             benchmark={
               <>
-                <p>{`benchmark growth over the last 3 years: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
-                <p>number of comparables: 20</p>
-                <p>geography: Spain</p>
+                <p>{`${t.labels.benchmarkGrowth3y}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>
+                <p>{`${t.labels.comparables}: 20`}</p>
+                <p>{`${t.labels.geography}: Spain`}</p>
               </>
             }
-            current={<p>{`current revenue: ${formatMoney(baseRevenue, lang)}`}</p>}
-            year5={<p>{`projected Year 5 revenue: ${formatMoney(revenueProjectionYear5WithAdditional, lang)}`}</p>}
+            current={<p>{`${t.labels.currentRevenue}: ${formatMoney(baseRevenue, lang)}`}</p>}
+            year5={<p>{`${t.labels.projectedYear5Revenue}: ${formatMoney(revenueProjectionYear5WithAdditional, lang)}`}</p>}
           />
 
           <button className="rounded-full bg-accent px-5 py-2 font-editorial text-sm text-ivory" onClick={() => setShowImpact(true)} type="button">
@@ -379,10 +411,10 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           </button>
           {showImpact && (
             <div className="rounded-xl border border-line p-3 font-editorial text-sm text-slateInk">
-              <p>{`base revenue: ${formatMoney(baseRevenue, lang)}`}</p>
-              <p>{`year 5 revenue: ${formatMoney(revenueProjectionYear5WithAdditional, lang)}`}</p>
-              <p>{`implied CAGR if applicable: ${impliedRevenueCagr === null ? '—' : `${formatNumber(impliedRevenueCagr, lang)}%`}`}</p>
-              <p>{`benchmark position: ${revenueBenchmarkPosition}`}</p>
+              <p>{`${t.labels.baseRevenue}: ${formatMoney(baseRevenue, lang)}`}</p>
+              <p>{`${t.labels.year5Revenue}: ${formatMoney(revenueProjectionYear5WithAdditional, lang)}`}</p>
+              <p>{`${t.labels.impliedCagr}: ${impliedRevenueCagr === null ? '—' : `${formatNumber(impliedRevenueCagr, lang)}%`}`}</p>
+              <p>{`${t.labels.benchmarkPosition}: ${revenueBenchmarkPosition}`}</p>
             </div>
           )}
         </SectionCard>
@@ -434,14 +466,14 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           {purchasesMode === 'constant-growth' && (
             <label className="block text-sm text-mutedInk">
               annual growth %
-              <input className="mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setPurchasesGrowth(Number(e.target.value) || 0)} type="number" value={purchasesGrowth} />
+              <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setPurchasesGrowth(Number(e.target.value) || 0)} type="number" value={purchasesGrowth} />
             </label>
           )}
           {purchasesMode === 'converge-benchmark' && (
             <label className="block text-sm text-mutedInk">
               X years
               <input
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2"
                 min={1}
                 onChange={(e) => setPurchasesConvergeYears(Math.max(1, Number(e.target.value) || 1))}
                 type="number"
@@ -450,6 +482,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             </label>
           )}
           <SummaryGrid
+            labels={t.summary}
             assumption={
               <>
                 {purchasesMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(purchasesRatioCurrent, lang)}%`}</p>}
@@ -466,8 +499,8 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             }
             current={
               <>
-                <p>{`current purchases: ${formatMoney(CURRENT_PURCHASES, lang)}`}</p>
-                <p>{`current Purchases / Revenue: ${formatNumber(purchasesRatioCurrent, lang)}%`}</p>
+                <p>{`${t.labels.currentPurchases}: ${formatMoney(CURRENT_PURCHASES, lang)}`}</p>
+                <p>{`${t.labels.purchasesRevenue}: ${formatNumber(purchasesRatioCurrent, lang)}%`}</p>
               </>
             }
             year5={
@@ -526,14 +559,14 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           {adminMode === 'constant-growth' && (
             <label className="block text-sm text-mutedInk">
               annual growth %
-              <input className="mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setAdminGrowth(Number(e.target.value) || 0)} type="number" value={adminGrowth} />
+              <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setAdminGrowth(Number(e.target.value) || 0)} type="number" value={adminGrowth} />
             </label>
           )}
           {adminMode === 'converge-benchmark' && (
             <label className="block text-sm text-mutedInk">
               X years
               <input
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2"
                 min={1}
                 onChange={(e) => setAdminConvergeYears(Math.max(1, Number(e.target.value) || 1))}
                 type="number"
@@ -542,6 +575,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             </label>
           )}
           <SummaryGrid
+            labels={t.summary}
             assumption={
               <>
                 {adminMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(adminRatioCurrent, lang)}%`}</p>}
@@ -558,8 +592,8 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             }
             current={
               <>
-                <p>{`current administrative expenses: ${formatMoney(CURRENT_ADMIN, lang)}`}</p>
-                <p>{`current Administrative Expenses / Revenue: ${formatNumber(adminRatioCurrent, lang)}%`}</p>
+                <p>{`${t.labels.currentAdmin}: ${formatMoney(CURRENT_ADMIN, lang)}`}</p>
+                <p>{`${t.labels.adminRevenue}: ${formatNumber(adminRatioCurrent, lang)}%`}</p>
               </>
             }
             year5={
@@ -586,8 +620,8 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
           {useFtePath ? (
             <>
               <label className="block text-sm text-mutedInk">
-                current FTE
-                <input className="mt-1 w-full rounded-lg border border-line px-3 py-2" min={1} onChange={(e) => setCurrentFte(Math.max(1, Number(e.target.value) || 1))} type="number" value={currentFte} />
+                {t.labels.currentFte}
+                <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" min={1} onChange={(e) => setCurrentFte(Math.max(1, Number(e.target.value) || 1))} type="number" value={currentFte} />
               </label>
               <div className="grid gap-2">
                 <OptionCard
@@ -641,7 +675,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                     <label className="text-sm text-mutedInk" key={`add-emp-${year}`}>
                       {`Year ${year}`}
                       <input
-                        className="mt-1 w-full rounded-lg border border-line px-2 py-2"
+                        className="no-spinner mt-1 w-full rounded-lg border border-line px-2 py-2"
                         onChange={(e) => {
                           const next = [...additionalEmployees];
                           next[index] = Number(e.target.value) || 0;
@@ -656,9 +690,9 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               )}
               {fteMode === 'grow-cost-per-employee' && (
                 <label className="block text-sm text-mutedInk">
-                  cost-per-employee growth
+                  {t.labels.costPerEmployeeGrowth}
                   <input
-                    className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                    className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2"
                     onChange={(e) => setCostPerEmployeeGrowth(Number(e.target.value) || 0)}
                     type="number"
                     value={costPerEmployeeGrowth}
@@ -666,10 +700,11 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 </label>
               )}
               <SummaryGrid
+                labels={t.summary}
                 assumption={
                   <>
                     {fteMode === 'add-employees' && <p>{`additional employees by year: ${additionalEmployees.join(', ')}`}</p>}
-                    {fteMode === 'grow-cost-per-employee' && <p>{`cost-per-employee growth: ${formatNumber(costPerEmployeeGrowth, lang)}%`}</p>}
+                    {fteMode === 'grow-cost-per-employee' && <p>{`${t.labels.costPerEmployeeGrowth}: ${formatNumber(costPerEmployeeGrowth, lang)}%`}</p>}
                     {fteMode === 'benchmark-cpe-growth' && <p>benchmark</p>}
                     {fteMode === 'inflation-cpe-growth' && <p>{`inflation 2%: ${INFLATION_REF}%`}</p>}
                   </>
@@ -682,16 +717,16 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 }
                 current={
                   <>
-                    <p>{`current FTE: ${formatNumber(currentFte, lang, 0)}`}</p>
-                    <p>{`current personnel expense: ${formatMoney(CURRENT_PERSONNEL, lang)}`}</p>
-                    <p>{`current cost per employee: ${new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(personnelCostPerEmployeeCurrent)}`}</p>
+                    <p>{`${t.labels.currentFte}: ${formatNumber(currentFte, lang, 0)}`}</p>
+                    <p>{`${t.labels.currentPersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL, lang)}`}</p>
+                    <p>{`${t.labels.currentCostPerEmployee}: ${new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(personnelCostPerEmployeeCurrent)}`}</p>
                   </>
                 }
                 year5={
                   <>
-                    <p>{`Year 5 FTE: ${formatNumber(currentFte + additionalEmployees.reduce((a, b) => a + b, 0), lang, 0)}`}</p>
-                    <p>{`Year 5 cost per employee: ${new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(personnelCostPerEmployeeCurrent * 1.1)}`}</p>
-                    <p>{`Year 5 total personnel expense: ${formatMoney(CURRENT_PERSONNEL * 1.15, lang)}`}</p>
+                    <p>{`${t.labels.year5Fte}: ${formatNumber(currentFte + additionalEmployees.reduce((a, b) => a + b, 0), lang, 0)}`}</p>
+                    <p>{`${t.labels.year5CostPerEmployee}: ${new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(personnelCostPerEmployeeCurrent * 1.1)}`}</p>
+                    <p>{`${t.labels.year5TotalPersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL * 1.15, lang)}`}</p>
                   </>
                 }
               />
@@ -743,14 +778,14 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               {personnelMode === 'constant-growth' && (
                 <label className="block text-sm text-mutedInk">
                   annual growth %
-                  <input className="mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setPersonnelGrowth(Number(e.target.value) || 0)} type="number" value={personnelGrowth} />
+                  <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setPersonnelGrowth(Number(e.target.value) || 0)} type="number" value={personnelGrowth} />
                 </label>
               )}
               {personnelMode === 'converge-benchmark' && (
                 <label className="block text-sm text-mutedInk">
                   X years
                   <input
-                    className="mt-1 w-full rounded-lg border border-line px-3 py-2"
+                    className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2"
                     min={1}
                     onChange={(e) => setPersonnelConvergeYears(Math.max(1, Number(e.target.value) || 1))}
                     type="number"
@@ -759,6 +794,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 </label>
               )}
               <SummaryGrid
+                labels={t.summary}
                 assumption={
                   <>
                     {personnelMode === 'keep-ratio' && <p>{`current ratio: ${formatNumber(personnelRatioCurrent, lang)}%`}</p>}
@@ -775,7 +811,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 }
                 current={
                   <>
-                    <p>{`current personnel expense: ${formatMoney(CURRENT_PERSONNEL, lang)}`}</p>
+                    <p>{`${t.labels.currentPersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL, lang)}`}</p>
                     <p>{`current Personnel Expenses / Revenue: ${formatNumber(personnelRatioCurrent, lang)}%`}</p>
                   </>
                 }
@@ -843,7 +879,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                   <label className="text-sm text-mutedInk" key={`fixed-${year}`}>
                     {`Year ${year}`}
                     <input
-                      className="mt-1 w-full rounded-lg border border-line px-2 py-2"
+                      className="no-spinner mt-1 w-full rounded-lg border border-line px-2 py-2"
                       onChange={(e) => {
                         const next = [...fixedPlan];
                         next[index] = Number(e.target.value) || 0;
@@ -862,7 +898,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                   <label className="text-sm text-mutedInk" key={`intangible-${year}`}>
                     {`Year ${year}`}
                     <input
-                      className="mt-1 w-full rounded-lg border border-line px-2 py-2"
+                      className="no-spinner mt-1 w-full rounded-lg border border-line px-2 py-2"
                       onChange={(e) => {
                         const next = [...intangiblePlan];
                         next[index] = Number(e.target.value) || 0;
@@ -881,16 +917,17 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             <div className="grid gap-3 md:grid-cols-2">
               <label className="text-sm text-mutedInk">
                 Fixed Assets / Revenue
-                <input className="mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setFixedRatio(Number(e.target.value) || 0)} type="number" value={fixedRatio} />
+                <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setFixedRatio(Number(e.target.value) || 0)} type="number" value={fixedRatio} />
               </label>
               <label className="text-sm text-mutedInk">
                 Intangible Assets / Revenue
-                <input className="mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setIntangibleRatio(Number(e.target.value) || 0)} type="number" value={intangibleRatio} />
+                <input className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2" onChange={(e) => setIntangibleRatio(Number(e.target.value) || 0)} type="number" value={intangibleRatio} />
               </label>
             </div>
           )}
 
           <SummaryGrid
+            labels={t.summary}
             assumption={
               <>
                 {capexMode === 'investment-plan' && <p>investment plan</p>}
