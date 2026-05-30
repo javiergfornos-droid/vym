@@ -68,25 +68,25 @@ export function CompanyIdentificationForm({ lang, labels, revenueOptions, provin
   const isBusinessTypeSelected = (type: Exclude<BusinessType, ''>) => values.businessType === type;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-editorial">
       <WizardResetActions lang={lang} onClearScreen={() => setValues(INITIAL_VALUES)} />
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="grid gap-4 md:grid-cols-3">
             <label className="md:col-span-2">
-              <span className="mb-2 block text-sm text-mutedInk">{labels.companyName}</span>
+              <span className="mb-2 block font-editorial text-sm text-mutedInk">{labels.companyName}</span>
               <input
-                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 font-editorial text-slateInk outline-none transition focus:border-accent"
                 type="text"
                 value={values.companyName}
                 onChange={(event) => setField('companyName', event.target.value)}
               />
             </label>
             <label>
-              <span className="mb-2 block text-sm text-mutedInk">{labels.website}</span>
+              <span className="mb-2 block font-editorial text-sm text-mutedInk">{labels.website}</span>
               <input
-                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 font-editorial text-slateInk outline-none transition focus:border-accent"
                 type="url"
                 value={values.website}
                 onChange={(event) => setField('website', event.target.value)}
@@ -96,18 +96,18 @@ export function CompanyIdentificationForm({ lang, labels, revenueOptions, provin
 
           <div className="grid gap-4 md:grid-cols-2">
             <label>
-              <span className="mb-2 block text-sm text-mutedInk">{labels.nace}</span>
+              <span className="mb-2 block font-editorial text-sm text-mutedInk">{labels.nace}</span>
               <input
-                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 font-editorial text-slateInk outline-none transition focus:border-accent"
                 type="text"
                 value={values.nace}
                 onChange={(event) => setField('nace', event.target.value)}
               />
             </label>
             <label>
-              <span className="mb-2 block text-sm text-mutedInk">{labels.sector}</span>
+              <span className="mb-2 block font-editorial text-sm text-mutedInk">{labels.sector}</span>
               <input
-                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 font-editorial text-slateInk outline-none transition focus:border-accent"
                 type="text"
                 value={values.sector}
                 onChange={(event) => setField('sector', event.target.value)}
@@ -117,9 +117,9 @@ export function CompanyIdentificationForm({ lang, labels, revenueOptions, provin
 
           <div className="grid gap-4 md:grid-cols-2">
             <label>
-              <span className="mb-2 block text-sm text-mutedInk">{labels.province}</span>
+              <span className="mb-2 block font-editorial text-sm text-mutedInk">{labels.province}</span>
               <select
-                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 font-editorial text-slateInk outline-none transition focus:border-accent"
                 value={values.province}
                 onChange={(event) => setField('province', event.target.value)}
               >
@@ -133,14 +133,14 @@ export function CompanyIdentificationForm({ lang, labels, revenueOptions, provin
             </label>
 
             <div>
-              <span className="mb-2 block text-sm text-mutedInk">{labels.revenue}</span>
+              <span className="mb-2 block font-editorial text-sm text-mutedInk">{labels.revenue}</span>
               <div className="flex flex-wrap gap-2">
                 {revenueOptions.map((option) => {
                   const active = values.revenueBand === option;
                   return (
                     <button
                       key={option}
-                      className={`rounded-full px-4 py-2 text-sm transition ${
+                      className={`rounded-full px-4 py-2 font-editorial text-sm transition ${
                         active
                           ? 'border border-accent bg-accent text-ivory'
                           : 'border border-line text-slateInk hover:border-accent'
@@ -156,9 +156,9 @@ export function CompanyIdentificationForm({ lang, labels, revenueOptions, provin
             </div>
 
             <label>
-              <span className="mb-2 block text-sm text-mutedInk">{labels.foundingYear}</span>
+              <span className="mb-2 block font-editorial text-sm text-mutedInk">{labels.foundingYear}</span>
               <select
-                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 text-slateInk outline-none transition focus:border-accent"
+                className="w-full rounded-xl border border-line bg-ivory/60 px-4 py-3 font-editorial text-slateInk outline-none transition focus:border-accent"
                 value={values.foundingYear}
                 onChange={(event) => setField('foundingYear', event.target.value)}
               >
@@ -172,10 +172,10 @@ export function CompanyIdentificationForm({ lang, labels, revenueOptions, provin
             </label>
 
             <div>
-              <span className="mb-2 block text-sm text-mutedInk">{labels.businessType}</span>
+              <span className="mb-2 block font-editorial text-sm text-mutedInk">{labels.businessType}</span>
               <div className="flex flex-wrap gap-2">
                 <button
-                  className={`rounded-full px-4 py-2 text-sm transition ${
+                  className={`rounded-full px-4 py-2 font-editorial text-sm transition ${
                     isBusinessTypeSelected('single')
                       ? 'border border-accent bg-accent text-ivory'
                       : 'border border-line text-slateInk hover:border-accent'
@@ -186,7 +186,7 @@ export function CompanyIdentificationForm({ lang, labels, revenueOptions, provin
                   {labels.single}
                 </button>
                 <button
-                  className={`rounded-full px-4 py-2 text-sm transition ${
+                  className={`rounded-full px-4 py-2 font-editorial text-sm transition ${
                     isBusinessTypeSelected('multiple')
                       ? 'border border-accent bg-accent text-ivory'
                       : 'border border-line text-slateInk hover:border-accent'
@@ -201,7 +201,7 @@ export function CompanyIdentificationForm({ lang, labels, revenueOptions, provin
           </div>
         </div>
 
-        <aside className="h-fit rounded-2xl border border-line bg-ivory/70 p-5 text-sm leading-relaxed text-mutedInk">{labels.sidebar}</aside>
+        <aside className="h-fit rounded-2xl border border-line bg-ivory/70 p-5 font-editorial text-sm leading-relaxed text-mutedInk">{labels.sidebar}</aside>
       </div>
     </div>
   );
