@@ -19,18 +19,18 @@ export function WizardBottomNav({ lang, backHref, nextHref, step, total, mode = 
   const buttons = (
     <div className="flex items-center justify-end gap-3">
       {backHref ? (
-        <Link className="rounded-full border border-line px-6 py-3 text-base" href={withLang(backHref, lang)}>
+        <Link className="rounded-full border border-line px-6 py-3 font-editorial text-base" href={withLang(backHref, lang)}>
           {t.back}
         </Link>
       ) : (
-        <span className="rounded-full border border-line px-6 py-3 text-base text-mutedInk">{t.back}</span>
+        <span className="rounded-full border border-line px-6 py-3 font-editorial text-base text-mutedInk">{t.back}</span>
       )}
       {nextHref ? (
-        <Link className="rounded-full bg-accent px-6 py-3 text-base text-ivory" href={withLang(nextHref, lang)}>
+        <Link className="rounded-full bg-accent px-6 py-3 font-editorial text-base text-ivory" href={withLang(nextHref, lang)}>
           {t.next}
         </Link>
       ) : (
-        <span className="rounded-full bg-line px-6 py-3 text-base text-mutedInk">{t.next}</span>
+        <span className="rounded-full bg-line px-6 py-3 font-editorial text-base text-mutedInk">{t.next}</span>
       )}
     </div>
   );
@@ -41,7 +41,7 @@ export function WizardBottomNav({ lang, backHref, nextHref, step, total, mode = 
 
   const meta = (
     <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4 px-4">
-      <button className="text-sm text-slateInk underline decoration-line underline-offset-4">{t.doubts}</button>
+      <button className="font-editorial text-sm text-slateInk underline decoration-line underline-offset-4">{t.doubts}</button>
       <div className="flex min-w-44 justify-end gap-2">
         {Array.from({ length: total }, (_, index) => {
           const filled = index < step;
@@ -64,7 +64,7 @@ export function WizardBottomNav({ lang, backHref, nextHref, step, total, mode = 
     <footer className="mt-8 border-t border-line pt-6">
       <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4 px-4">
         {buttons}
-        <button className="text-sm text-slateInk underline decoration-line underline-offset-4">{t.doubts}</button>
+        <button className="font-editorial text-sm text-slateInk underline decoration-line underline-offset-4">{t.doubts}</button>
         <div className="flex min-w-44 justify-end gap-2">
           {Array.from({ length: total }, (_, index) => {
             const filled = index < step;

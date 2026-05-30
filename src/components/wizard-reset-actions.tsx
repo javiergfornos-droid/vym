@@ -31,14 +31,14 @@ export function WizardResetActions({ lang, onClearScreen }: Props) {
   return (
     <div className="flex flex-wrap justify-end gap-2">
       <button
-        className="rounded-full border border-line px-4 py-2 text-sm text-slateInk transition hover:border-accent"
+        className="rounded-full border border-line px-4 py-2 font-editorial text-sm text-slateInk transition hover:border-accent"
         type="button"
         onClick={onClearScreen}
       >
         {labels.clearScreen}
       </button>
       <button
-        className="rounded-full border border-line px-4 py-2 text-sm text-slateInk transition hover:border-accent"
+        className="rounded-full border border-line px-4 py-2 font-editorial text-sm text-slateInk transition hover:border-accent"
         type="button"
         onClick={handleReturnToStart}
       >
