@@ -11,7 +11,7 @@ export default function IntroPage({ searchParams }: Props) {
       ? {
           title: 'Antes de empezar',
           body:
-            'Construiremos una primera valoración a partir de tus datos financieros y de las hipótesis que definas en el modelo. Puedes avanzar con información mínima y ajustar cada supuesto antes de ver el resultado.',
+            'Vamos a hacer una valoración de tu empresa mediante el Método del Descuento de Flujos de Caja a partir de tus datos financieros y de las hipótesis que definas en el modelo. Puedes avanzar con información mínima y ajustar cada supuesto antes de ver el resultado.',
         }
       : {
           title: 'Before you start',
@@ -24,13 +24,15 @@ export default function IntroPage({ searchParams }: Props) {
       <TopNav currentPath="/wizard/intro" lang={lang} />
       <WizardStepShell
         backHref="/"
-        description={introCopy.body}
+        description={null}
         lang={lang}
         nextHref="/wizard/company-identification"
         step={1}
         title={introCopy.title}
         total={7}
-      />
+      >
+        <p className="max-w-2xl text-lg leading-relaxed text-mutedInk">{introCopy.body}</p>
+      </WizardStepShell>
     </>
   );
 }
