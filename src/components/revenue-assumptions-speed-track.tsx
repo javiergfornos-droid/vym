@@ -1,9 +1,10 @@
 'use client';
 
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { WizardStepShell } from '@/components/wizard-step-shell';
 import { type Language } from '@/lib/i18n';
+import { WIZARD_STORAGE_KEYS, readWizardStorage } from '@/lib/wizard-storage';
 
 type Props = {
   lang: Language;
@@ -13,6 +14,7 @@ type RevenueMode = 'initial-plus-growth' | 'year1-year5' | 'constant-5y' | 'benc
 type CostMode = 'keep-ratio' | 'constant-growth' | 'benchmark-growth' | 'converge-benchmark';
 type PersonnelFteMode = 'add-employees' | 'grow-cost-per-employee' | 'benchmark-cpe-growth' | 'inflation-cpe-growth';
 type CapexMode = 'investment-plan' | 'reinvest-maintain' | 'constant-ratio' | 'converge-benchmark-5y';
+type WorkingCapitalMode = 'confirmed' | 'manual';
 
 const YEARS = [1, 2, 3, 4, 5] as const;
 
@@ -27,12 +29,18 @@ const CURRENT_FTE = 250;
 const CURRENT_FIXED_ASSETS = 28;
 const CURRENT_INTANGIBLE_ASSETS = 9;
 const DEPRECIATION_PROXY = [7, 7, 7, 7, 7];
+const CURRENT_INVENTORIES = 12;
+const CURRENT_ACCOUNTS_RECEIVABLE = 18;
+const CURRENT_SUPPLIERS = 10;
 
 const BENCHMARK_PURCHASES_RATIO = 42;
 const BENCHMARK_ADMIN_RATIO = 10;
 const BENCHMARK_PERSONNEL_RATIO = 18;
 const BENCHMARK_FIXED_RATIO = 8;
 const BENCHMARK_INTANGIBLE_RATIO = 3;
+const BENCHMARK_COLLECTION_DAYS = 60;
+const BENCHMARK_INVENTORY_DAYS = 45;
+const BENCHMARK_PAYMENT_DAYS = 50;
 
 const formatNumber = (value: number, lang: Language, max = 1) =>
   new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US', {
@@ -46,6 +54,16 @@ const formatMoney = (value: number, lang: Language) =>
     currency: 'EUR',
     maximumFractionDigits: 0,
   }).format(value * 1_000_000);
+
+const formatDays = (value: number, lang: Language) =>
+  new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value);
+
+const parseNumericInput = (value: string | undefined) => Number(value?.replace(',', '.') || 0);
+const parseNumericInputOrFallback = (value: string | undefined, fallback: number) => (value === undefined ? fallback : parseNumericInput(value));
+const calculateDays = (numerator: number, denominator: number) => (denominator > 0 ? (numerator / denominator) * 365 : 0);
 
 function SectionCard({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -111,6 +129,16 @@ function OptionCard({
 
 type RevenueAssumptionsTranslations = {
   summary: { current: string; assumption: string; benchmark: string; year5: string };
+  workingCapital: {
+    title: string;
+    body: string;
+    formula: string;
+    confirmationQuestion: string;
+    confirmButton: string;
+    manualButton: string;
+    manualTitle: string;
+    benchmarkTitle: string;
+  };
   labels: Record<string, string>;
   revenueTitle: string;
   revenueQuestion: string;
@@ -126,9 +154,35 @@ type RevenueAssumptionsTranslations = {
   amortizationQuestion: string;
 };
 
+type IncomeStatementStorage = {
+  sales?: string;
+  purchases?: string;
+};
+
+type BalanceSheetStorage = {
+  assets?: string[];
+  liabilities?: string[];
+};
+
 export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   const t: RevenueAssumptionsTranslations = {
     summary: { current: lang === 'es' ? 'Actual' : 'Current', assumption: lang === 'es' ? 'Hipótesis' : 'Assumption', benchmark: 'Benchmark', year5: lang === 'es' ? 'Año 5' : 'Year 5' },
+    workingCapital: {
+      title: lang === 'es' ? 'Capital circulante' : 'Working capital',
+      body:
+        lang === 'es'
+          ? 'Calculamos los días de cobro, inventario y pago a partir de los datos de balance y cuenta de resultados que has introducido.'
+          : 'We calculate collection, inventory and payment days based on the balance sheet and income statement data you entered.',
+      formula:
+        lang === 'es'
+          ? 'Capital circulante operativo = Cuentas por Cobrar + Inventarios - Proveedores'
+          : 'Operating working capital = Accounts Receivable + Inventories - Suppliers',
+      confirmationQuestion: lang === 'es' ? '¿Confirmas los días calculados?' : 'Do you confirm the calculated days?',
+      confirmButton: lang === 'es' ? 'Confirmar días calculados' : 'Confirm calculated days',
+      manualButton: lang === 'es' ? 'Introducir manualmente' : 'Enter manually',
+      manualTitle: lang === 'es' ? 'Introduce manualmente los días de capital circulante' : 'Enter working capital days manually',
+      benchmarkTitle: lang === 'es' ? 'Benchmark sectorial' : 'Sector benchmark',
+    },
     labels: {
       baseRevenue: lang === 'es' ? 'Ventas base' : 'base revenue',
       annualGrowth: lang === 'es' ? 'Crecimiento anual' : 'annual growth',
@@ -200,6 +254,17 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
       year5Amortization: lang === 'es' ? 'Amortizaciones año 5' : 'Year 5 depreciation and amortization',
       year5AmortizationOverRevenue:
         lang === 'es' ? 'Amortizaciones / ventas año 5' : 'Year 5 depreciation and amortization / revenue',
+      manualCollectionDays: lang === 'es' ? 'Días de cobro' : 'Collection days',
+      manualInventoryDays: lang === 'es' ? 'Días de inventario' : 'Inventory days',
+      manualPaymentDays: lang === 'es' ? 'Días de pago' : 'Payment days',
+      benchmarkCollectionDays: lang === 'es' ? 'Días de cobro benchmark' : 'Benchmark collection days',
+      benchmarkInventoryDays: lang === 'es' ? 'Días de inventario benchmark' : 'Benchmark inventory days',
+      benchmarkPaymentDays: lang === 'es' ? 'Días de pago benchmark' : 'Benchmark payment days',
+      calculatedCollectionDays: lang === 'es' ? 'Días de cobro calculados' : 'Calculated collection days',
+      calculatedInventoryDays: lang === 'es' ? 'Días de inventario calculados' : 'Calculated inventory days',
+      calculatedPaymentDays: lang === 'es' ? 'Días de pago calculados' : 'Calculated payment days',
+      currentOperatingWorkingCapital:
+        lang === 'es' ? 'Capital circulante operativo actual' : 'Current operating working capital',
     },
     revenueTitle: lang === 'es' ? 'Hipótesis de ingresos' : 'Revenue assumptions',
     revenueQuestion: lang === 'es' ? '¿Cómo quieres proyectar tus ingresos?' : 'How would you like to project your revenue?',
@@ -266,6 +331,29 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   const [fixedRatio, setFixedRatio] = useState((CURRENT_FIXED_ASSETS / BASE_REVENUE) * 100);
   const [intangibleRatio, setIntangibleRatio] = useState((CURRENT_INTANGIBLE_ASSETS / BASE_REVENUE) * 100);
 
+  const [workingCapitalMode, setWorkingCapitalMode] = useState<WorkingCapitalMode>('confirmed');
+  const [manualWorkingCapitalDays, setManualWorkingCapitalDays] = useState({ collection: '', inventory: '', payment: '' });
+  const [workingCapitalInputs, setWorkingCapitalInputs] = useState({
+    revenue: BASE_REVENUE,
+    purchases: CURRENT_PURCHASES,
+    inventories: CURRENT_INVENTORIES,
+    accountsReceivable: CURRENT_ACCOUNTS_RECEIVABLE,
+    suppliers: CURRENT_SUPPLIERS,
+  });
+
+  useEffect(() => {
+    const incomeStatement = readWizardStorage<IncomeStatementStorage>(WIZARD_STORAGE_KEYS.incomeStatement, {});
+    const balanceSheet = readWizardStorage<BalanceSheetStorage>(WIZARD_STORAGE_KEYS.balanceSheet, {});
+
+    setWorkingCapitalInputs({
+      revenue: parseNumericInputOrFallback(incomeStatement.sales, BASE_REVENUE),
+      purchases: parseNumericInputOrFallback(incomeStatement.purchases, CURRENT_PURCHASES),
+      inventories: parseNumericInputOrFallback(balanceSheet.assets?.[3], CURRENT_INVENTORIES),
+      accountsReceivable: parseNumericInputOrFallback(balanceSheet.assets?.[4], CURRENT_ACCOUNTS_RECEIVABLE),
+      suppliers: parseNumericInputOrFallback(balanceSheet.liabilities?.[5], CURRENT_SUPPLIERS),
+    });
+  }, []);
+
   const revenueProjectionYear5 = useMemo(() => {
     if (revenueMode === 'initial-plus-growth') return baseRevenue * (1 + revenueGrowth / 100) ** 5;
     if (revenueMode === 'year1-year5') return year5RevenueTarget;
@@ -299,6 +387,30 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   const personnelRatioCurrent = (CURRENT_PERSONNEL / BASE_REVENUE) * 100;
 
   const personnelCostPerEmployeeCurrent = CURRENT_PERSONNEL * 1_000_000 / Math.max(currentFte, 1);
+
+  const calculatedWorkingCapitalDays = useMemo(
+    () => ({
+      collection: calculateDays(workingCapitalInputs.accountsReceivable, workingCapitalInputs.revenue),
+      inventory: calculateDays(workingCapitalInputs.inventories, workingCapitalInputs.purchases),
+      payment: calculateDays(workingCapitalInputs.suppliers, workingCapitalInputs.purchases),
+    }),
+    [workingCapitalInputs],
+  );
+  const selectedWorkingCapitalDays = {
+    collection:
+      workingCapitalMode === 'manual' && manualWorkingCapitalDays.collection !== ''
+        ? parseNumericInput(manualWorkingCapitalDays.collection)
+        : calculatedWorkingCapitalDays.collection,
+    inventory:
+      workingCapitalMode === 'manual' && manualWorkingCapitalDays.inventory !== ''
+        ? parseNumericInput(manualWorkingCapitalDays.inventory)
+        : calculatedWorkingCapitalDays.inventory,
+    payment:
+      workingCapitalMode === 'manual' && manualWorkingCapitalDays.payment !== ''
+        ? parseNumericInput(manualWorkingCapitalDays.payment)
+        : calculatedWorkingCapitalDays.payment,
+  };
+  const currentOperatingWorkingCapital = workingCapitalInputs.accountsReceivable + workingCapitalInputs.inventories - workingCapitalInputs.suppliers;
 
   const impliedPolicyFlags = useMemo(() => {
     const flags: string[] = [];
@@ -1061,6 +1173,78 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               </>
             }
           />
+        </SectionCard>
+
+        <SectionCard title={t.workingCapital.title}>
+          <div className="space-y-2">
+            <p className="font-editorial text-lg text-slateInk">{t.workingCapital.body}</p>
+            <p className="rounded-xl border border-line bg-ivory p-3 font-editorial text-sm text-slateInk">{t.workingCapital.formula}</p>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="rounded-xl border border-line bg-ivory p-3">
+              <div className="space-y-1 font-editorial text-sm text-slateInk">
+                <p>{`${t.labels.calculatedCollectionDays}: ${formatDays(calculatedWorkingCapitalDays.collection, lang)}`}</p>
+                <p>{`${t.labels.calculatedInventoryDays}: ${formatDays(calculatedWorkingCapitalDays.inventory, lang)}`}</p>
+                <p>{`${t.labels.calculatedPaymentDays}: ${formatDays(calculatedWorkingCapitalDays.payment, lang)}`}</p>
+                <p>{`${t.labels.currentOperatingWorkingCapital}: ${formatMoney(currentOperatingWorkingCapital, lang)}`}</p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-line bg-ivory p-3">
+              <p className="font-editorial text-sm text-mutedInk">{t.workingCapital.benchmarkTitle}</p>
+              <div className="mt-1 space-y-1 font-editorial text-sm text-slateInk">
+                <p>{`${t.labels.benchmarkCollectionDays}: ${formatDays(BENCHMARK_COLLECTION_DAYS, lang)}`}</p>
+                <p>{`${t.labels.benchmarkInventoryDays}: ${formatDays(BENCHMARK_INVENTORY_DAYS, lang)}`}</p>
+                <p>{`${t.labels.benchmarkPaymentDays}: ${formatDays(BENCHMARK_PAYMENT_DAYS, lang)}`}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="font-editorial text-lg text-slateInk">{t.workingCapital.confirmationQuestion}</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                className={`rounded-full border px-4 py-2 text-sm ${workingCapitalMode === 'confirmed' ? 'border-accent bg-ivory' : 'border-line bg-white'}`}
+                onClick={() => setWorkingCapitalMode('confirmed')}
+                type="button"
+              >
+                {t.workingCapital.confirmButton}
+              </button>
+              <button
+                className={`rounded-full border px-4 py-2 text-sm ${workingCapitalMode === 'manual' ? 'border-accent bg-ivory' : 'border-line bg-white'}`}
+                onClick={() => setWorkingCapitalMode('manual')}
+                type="button"
+              >
+                {t.workingCapital.manualButton}
+              </button>
+            </div>
+          </div>
+
+          {workingCapitalMode === 'manual' && (
+            <div className="rounded-xl border border-line bg-ivory p-3">
+              <p className="font-editorial text-[15px] text-slateInk">{t.workingCapital.manualTitle}</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                {[
+                  { key: 'collection' as const, label: t.labels.manualCollectionDays, value: selectedWorkingCapitalDays.collection },
+                  { key: 'inventory' as const, label: t.labels.manualInventoryDays, value: selectedWorkingCapitalDays.inventory },
+                  { key: 'payment' as const, label: t.labels.manualPaymentDays, value: selectedWorkingCapitalDays.payment },
+                ].map((item) => (
+                  <label className="text-sm text-mutedInk" key={item.key}>
+                    {item.label}
+                    <input
+                      data-working-capital-days={item.value}
+                      className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-slateInk outline-none transition focus:border-accent"
+                      inputMode="decimal"
+                      onChange={(event) => setManualWorkingCapitalDays((current) => ({ ...current, [item.key]: event.target.value }))}
+                      type="text"
+                      value={manualWorkingCapitalDays[item.key]}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </SectionCard>
 
         {impliedPolicyFlags.length > 0 && (
