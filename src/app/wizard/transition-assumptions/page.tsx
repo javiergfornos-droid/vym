@@ -43,7 +43,7 @@ export default function TransitionAssumptionsPage({ searchParams }: Props) {
               proyectados.
             </p>
             <p>
-              6) Descontraremos esos flujos de caja en un valor financiero de los activos y de las acciones de la empresa.
+              6) Descontaremos esos flujos de caja en un valor financiero de los activos y de las acciones de la empresa.
             </p>
           </div>
         </div>
