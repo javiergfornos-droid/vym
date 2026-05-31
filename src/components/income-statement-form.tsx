@@ -29,8 +29,8 @@ export function IncomeStatementForm({ lang, unitLabel }: IncomeStatementFormProp
           amount: 'Importe',
           ebitda: 'EBITDA',
           ebit: 'EBIT',
-          ebitdaMargin: 'EBITDA Margin',
-          ebitMargin: 'EBIT Margin',
+          ebitdaMargin: 'Margen EBITDA',
+          ebitMargin: 'Margen EBIT',
           items: [
             { key: 'sales' as ItemKey, label: 'Ventas / Ingresos' },
             { key: 'purchases' as ItemKey, label: 'Compras / Aprovisionamientos' },
