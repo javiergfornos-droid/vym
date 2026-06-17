@@ -10,7 +10,7 @@ type Props = {
   lang: Language;
 };
 
-type RevenueMode = 'initial-plus-growth' | 'year1-year5' | 'constant-5y' | 'benchmark-growth';
+type RevenueMode = 'initial-plus-growth' | 'year1-year5' | 'constant-5y' | 'benchmark-growth' | 'year-by-year-growth';
 type CostMode = 'keep-ratio' | 'constant-growth' | 'benchmark-growth' | 'converge-benchmark';
 type PersonnelFteMode = 'add-employees' | 'grow-cost-per-employee' | 'benchmark-cpe-growth' | 'inflation-cpe-growth';
 type CapexMode = 'investment-plan' | 'reinvest-maintain' | 'constant-ratio' | 'converge-benchmark-5y';
@@ -62,8 +62,36 @@ const formatDays = (value: number, lang: Language) =>
   }).format(value);
 
 const parseNumericInput = (value: string | undefined) => Number(value?.replace(',', '.') || 0);
+const normalizePercentageInput = (value: string) => value.replace(',', '.').replace(/^0+(?=\d)/, '');
 const parseNumericInputOrFallback = (value: string | undefined, fallback: number) => (value === undefined ? fallback : parseNumericInput(value));
 const calculateDays = (numerator: number, denominator: number) => (denominator > 0 ? (numerator / denominator) * 365 : 0);
+
+
+function PercentInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="font-editorial text-sm text-mutedInk">
+      {label}
+      <span className="relative mt-1 block">
+        <input
+          className="w-full rounded-lg border border-line px-3 py-2 pr-9 font-editorial"
+          inputMode="decimal"
+          onChange={(e) => onChange(normalizePercentageInput(e.target.value))}
+          type="text"
+          value={value}
+        />
+        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center font-editorial text-sm text-mutedInk">%</span>
+      </span>
+    </label>
+  );
+}
 
 function SectionCard({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -301,7 +329,8 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
 
   const [revenueMode, setRevenueMode] = useState<RevenueMode>('initial-plus-growth');
   const [baseRevenue, setBaseRevenue] = useState(BASE_REVENUE);
-  const [revenueGrowth, setRevenueGrowth] = useState(8);
+  const [revenueGrowth, setRevenueGrowth] = useState('8');
+  const [yearByYearGrowthRates, setYearByYearGrowthRates] = useState(['8', '8', '8', '8', '8']);
   const [year1Revenue, setYear1Revenue] = useState(BASE_REVENUE * 1.08);
   const [year5RevenueTarget, setYear5RevenueTarget] = useState(147);
   const [constantRevenue, setConstantRevenue] = useState(BASE_REVENUE);
@@ -355,11 +384,14 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   }, []);
 
   const revenueProjectionYear5 = useMemo(() => {
-    if (revenueMode === 'initial-plus-growth') return baseRevenue * (1 + revenueGrowth / 100) ** 5;
+    if (revenueMode === 'initial-plus-growth') return baseRevenue * (1 + parseNumericInput(revenueGrowth) / 100) ** 5;
     if (revenueMode === 'year1-year5') return year5RevenueTarget;
     if (revenueMode === 'benchmark-growth') return baseRevenue * (1 + BENCHMARK_RATE / 100) ** 5;
+    if (revenueMode === 'year-by-year-growth') {
+      return yearByYearGrowthRates.reduce((revenue, growthRate) => revenue * (1 + parseNumericInput(growthRate) / 100), baseRevenue);
+    }
     return constantRevenue;
-  }, [revenueMode, baseRevenue, revenueGrowth, year5RevenueTarget, constantRevenue]);
+  }, [revenueMode, baseRevenue, revenueGrowth, year5RevenueTarget, constantRevenue, yearByYearGrowthRates]);
 
   const revenueProjectionYear5WithAdditional = revenueProjectionYear5 + additionalRevenueAmount;
   const currentAmortization = DEPRECIATION_PROXY[0];
@@ -450,20 +482,30 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               lang === 'es' ? 'Tengo un objetivo de ventas que alcanzar dentro de 5 años' : 'I have a revenue target to reach within 5 years',
               lang === 'es' ? 'No preveo ningún crecimiento' : 'I do not expect any growth',
               lang === 'es' ? 'Utilizaré el crecimiento del benchmark' : 'I will use benchmark growth',
+              lang === 'es' ? 'Quiero definir un crecimiento diferente para cada año' : 'I want to define a different growth rate for each year',
             ].map((copy, index) => (
               <button
                 className={`rounded-xl border px-3 py-2 text-left font-editorial text-sm ${
                   (index === 0 && revenueMode === 'initial-plus-growth') ||
                   (index === 1 && revenueMode === 'year1-year5') ||
                   (index === 2 && revenueMode === 'constant-5y') ||
-                  (index === 3 && revenueMode === 'benchmark-growth')
+                  (index === 3 && revenueMode === 'benchmark-growth') ||
+                  (index === 4 && revenueMode === 'year-by-year-growth')
                     ? 'border-accent bg-ivory'
                     : 'border-line bg-white'
                 }`}
                 key={copy}
                 onClick={() =>
                   setRevenueMode(
-                    index === 0 ? 'initial-plus-growth' : index === 1 ? 'year1-year5' : index === 2 ? 'constant-5y' : 'benchmark-growth',
+                    index === 0
+                      ? 'initial-plus-growth'
+                      : index === 1
+                        ? 'year1-year5'
+                        : index === 2
+                          ? 'constant-5y'
+                          : index === 3
+                            ? 'benchmark-growth'
+                            : 'year-by-year-growth',
                   )
                 }
                 type="button"
@@ -484,15 +526,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               />
             </label>
             {revenueMode === 'initial-plus-growth' && (
-              <label className="font-editorial text-sm text-mutedInk">
-                {t.labels.annualGrowth}
-                <input
-                  className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
-                  onChange={(e) => setRevenueGrowth(Number(e.target.value) || 0)}
-                  type="number"
-                  value={revenueGrowth}
-                />
-              </label>
+              <PercentInput label={t.labels.annualGrowth} onChange={setRevenueGrowth} value={revenueGrowth} />
             )}
             {revenueMode === 'year1-year5' && (
               <>
@@ -527,6 +561,19 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
                 />
               </label>
             )}
+            {revenueMode === 'year-by-year-growth' &&
+              yearByYearGrowthRates.map((growthRate, index) => (
+                <PercentInput
+                  key={index}
+                  label={lang === 'es' ? `Crecimiento Año ${index + 1}` : `Year ${index + 1} growth`}
+                  onChange={(value) =>
+                    setYearByYearGrowthRates((currentRates) =>
+                      currentRates.map((currentRate, currentIndex) => (currentIndex === index ? value : currentRate)),
+                    )
+                  }
+                  value={growthRate}
+                />
+              ))}
           </div>
 
           <div className="rounded-xl border border-line bg-white p-3">
@@ -559,10 +606,11 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
             labels={t.summary}
             assumption={
               <>
-                {revenueMode === 'initial-plus-growth' && <p>{`${t.labels.annualGrowth}: ${formatNumber(revenueGrowth, lang)}%`}</p>}
+                {revenueMode === 'initial-plus-growth' && <p>{`${t.labels.annualGrowth}: ${formatNumber(parseNumericInput(revenueGrowth), lang)}%`}</p>}
                 {revenueMode === 'year1-year5' && <p>{`or implied CAGR: ${formatNumber(impliedRevenueCagr ?? 0, lang)}%`}</p>}
                 {revenueMode === 'constant-5y' && <p>{`or constant value: ${formatMoney(constantRevenue, lang)}`}</p>}
                 {revenueMode === 'benchmark-growth' && <p>{`Benchmark ${t.labels.annualGrowth.toLowerCase()}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
+                {revenueMode === 'year-by-year-growth' && <p>{lang === 'es' ? 'crecimientos año a año' : 'year-by-year growth'}</p>}
                 <p>{`${t.labels.additionalRevenue}: ${formatMoney(additionalRevenueAmount, lang)}`}</p>
               </>
             }
