@@ -22,7 +22,6 @@ const YEARS = [1, 2, 3, 4, 5] as const;
 const BENCHMARK_RATE = 8.2;
 const BENCHMARK_PEOPLE_COST = 78_000;
 const INFLATION_REF = 2;
-const BASE_REVENUE = 100;
 const CURRENT_PURCHASES = 44;
 const CURRENT_ADMIN = 12;
 const CURRENT_PERSONNEL = 22;
@@ -49,12 +48,7 @@ const formatNumber = (value: number, lang: Language, max = 1) =>
     maximumFractionDigits: max,
   }).format(value);
 
-const formatMoney = (value: number, lang: Language) =>
-  new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-  }).format(value * 1_000_000);
+const formatUnitAmount = (value: number, lang: Language, unitLabel: string) => `${formatNumber(value, lang)} ${unitLabel}`;
 
 const formatDays = (value: number, lang: Language) =>
   new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US', {
@@ -80,7 +74,7 @@ const UNIT_LABELS: Record<Language, Record<string, string>> = {
 const getUnitLabel = (unit: string | undefined, lang: Language) => UNIT_LABELS[lang][unit ?? 'eur'] ?? UNIT_LABELS[lang].eur;
 const getSentenceUnitLabel = (unitLabel: string) => `${unitLabel.charAt(0).toLocaleLowerCase()}${unitLabel.slice(1)}`;
 const normalizePercentageInput = (value: string) => value.replace(',', '.').replace(/^0+(?=\d)/, '');
-const parseNumericInputOrFallback = (value: string | undefined, fallback: number) => (value === undefined ? fallback : parseNumericInput(value));
+const parseNumericInputOrFallback = (value: string | undefined, fallback: number) => (value === undefined || value === '' ? fallback : parseNumericInput(value));
 const calculateDays = (numerator: number, denominator: number) => (denominator > 0 ? (numerator / denominator) * 365 : 0);
 
 
@@ -377,12 +371,12 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
   const [showImpact, setShowImpact] = useState(false);
 
   const [revenueMode, setRevenueMode] = useState<RevenueMode>('initial-plus-growth');
-  const [baseRevenue, setBaseRevenue] = useState(BASE_REVENUE);
+  const [baseRevenue, setBaseRevenue] = useState(0);
   const [revenueGrowth, setRevenueGrowth] = useState('8');
   const [yearByYearGrowthRates, setYearByYearGrowthRates] = useState(['8', '8', '8', '8', '8']);
-  const [year1Revenue, setYear1Revenue] = useState(BASE_REVENUE * 1.08);
-  const [year5RevenueTarget, setYear5RevenueTarget] = useState(147);
-  const [constantRevenue, setConstantRevenue] = useState(BASE_REVENUE);
+  const [year1Revenue, setYear1Revenue] = useState(0);
+  const [year5RevenueTarget, setYear5RevenueTarget] = useState(0);
+  const [constantRevenue, setConstantRevenue] = useState(0);
   const [additionalRevenueAmount, setAdditionalRevenueAmount] = useState(0);
 
   const [purchasesMode, setPurchasesMode] = useState<CostMode>('keep-ratio');
@@ -406,14 +400,14 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
   const [capexMode, setCapexMode] = useState<CapexMode>('investment-plan');
   const [fixedPlan, setFixedPlan] = useState([5, 5, 5, 5, 5]);
   const [intangiblePlan, setIntangiblePlan] = useState([2, 2, 2, 2, 2]);
-  const [fixedRatio, setFixedRatio] = useState((CURRENT_FIXED_ASSETS / BASE_REVENUE) * 100);
-  const [intangibleRatio, setIntangibleRatio] = useState((CURRENT_INTANGIBLE_ASSETS / BASE_REVENUE) * 100);
+  const [fixedRatio, setFixedRatio] = useState(0);
+  const [intangibleRatio, setIntangibleRatio] = useState(0);
   const totalInvestmentPlan = [...fixedPlan, ...intangiblePlan].reduce((total, value) => total + value, 0);
 
   const [workingCapitalMode, setWorkingCapitalMode] = useState<WorkingCapitalMode>('confirmed');
   const [manualWorkingCapitalDays, setManualWorkingCapitalDays] = useState({ collection: '', inventory: '', payment: '' });
   const [workingCapitalInputs, setWorkingCapitalInputs] = useState({
-    revenue: BASE_REVENUE,
+    revenue: 0,
     purchases: CURRENT_PURCHASES,
     inventories: CURRENT_INVENTORIES,
     accountsReceivable: CURRENT_ACCOUNTS_RECEIVABLE,
@@ -424,8 +418,17 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
     const incomeStatement = readWizardStorage<IncomeStatementStorage>(WIZARD_STORAGE_KEYS.incomeStatement, {});
     const balanceSheet = readWizardStorage<BalanceSheetStorage>(WIZARD_STORAGE_KEYS.balanceSheet, {});
 
+    const incomeStatementRevenue = parseNumericInputOrFallback(incomeStatement.sales, 0);
+
+    setBaseRevenue(incomeStatementRevenue);
+    setYear1Revenue(incomeStatementRevenue * 1.08);
+    setYear5RevenueTarget(incomeStatementRevenue * 1.08 ** 5);
+    setConstantRevenue(incomeStatementRevenue);
+    setFixedRatio(incomeStatementRevenue > 0 ? (CURRENT_FIXED_ASSETS / incomeStatementRevenue) * 100 : 0);
+    setIntangibleRatio(incomeStatementRevenue > 0 ? (CURRENT_INTANGIBLE_ASSETS / incomeStatementRevenue) * 100 : 0);
+
     setWorkingCapitalInputs({
-      revenue: parseNumericInputOrFallback(incomeStatement.sales, BASE_REVENUE),
+      revenue: incomeStatementRevenue,
       purchases: parseNumericInputOrFallback(incomeStatement.purchases, CURRENT_PURCHASES),
       inventories: parseNumericInputOrFallback(balanceSheet.assets?.[3], CURRENT_INVENTORIES),
       accountsReceivable: parseNumericInputOrFallback(balanceSheet.assets?.[4], CURRENT_ACCOUNTS_RECEIVABLE),
@@ -447,7 +450,7 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
   const currentAmortization = DEPRECIATION_PROXY[0];
   const currentAmortizableAssets = CURRENT_FIXED_ASSETS + CURRENT_INTANGIBLE_ASSETS;
   const currentAmortizationRatio = currentAmortizableAssets > 0 ? currentAmortization / currentAmortizableAssets : 0;
-  const currentAmortizationRevenueRatio = BASE_REVENUE > 0 ? (currentAmortization / BASE_REVENUE) * 100 : 0;
+  const currentAmortizationRevenueRatio = baseRevenue > 0 ? (currentAmortization / baseRevenue) * 100 : 0;
   const projectedYear5AmortizableAssets = currentAmortizableAssets + fixedPlan.reduce((a, b) => a + b, 0) + intangiblePlan.reduce((a, b) => a + b, 0);
   const projectedYear5Amortization = projectedYear5AmortizableAssets * currentAmortizationRatio;
   const year5AmortizationRevenueRatio = revenueProjectionYear5WithAdditional > 0 ? (projectedYear5Amortization / revenueProjectionYear5WithAdditional) * 100 : 0;
@@ -464,9 +467,9 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
     return impliedRevenueCagr > BENCHMARK_RATE ? (lang === 'es' ? 'por encima' : 'above') : lang === 'es' ? 'por debajo' : 'below';
   }, [impliedRevenueCagr, lang]);
 
-  const purchasesRatioCurrent = (CURRENT_PURCHASES / BASE_REVENUE) * 100;
-  const adminRatioCurrent = (CURRENT_ADMIN / BASE_REVENUE) * 100;
-  const personnelRatioCurrent = (CURRENT_PERSONNEL / BASE_REVENUE) * 100;
+  const purchasesRatioCurrent = baseRevenue > 0 ? (CURRENT_PURCHASES / baseRevenue) * 100 : 0;
+  const adminRatioCurrent = baseRevenue > 0 ? (CURRENT_ADMIN / baseRevenue) * 100 : 0;
+  const personnelRatioCurrent = baseRevenue > 0 ? (CURRENT_PERSONNEL / baseRevenue) * 100 : 0;
 
   const personnelCostPerEmployeeCurrent = CURRENT_PERSONNEL * 1_000_000 / Math.max(currentFte, 1);
 
@@ -568,12 +571,17 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
           <div className="grid gap-3 md:grid-cols-2">
             <label className="font-editorial text-sm text-mutedInk">
               {t.labels.baseRevenue}
-              <input
-                className="no-spinner mt-1 w-full rounded-lg border border-line px-3 py-2 font-editorial"
-                onChange={(e) => setBaseRevenue(Number(e.target.value) || 0)}
-                type="number"
-                value={baseRevenue}
-              />
+              <span className="relative mt-1 block">
+                <input
+                  className="no-spinner w-full rounded-lg border border-line bg-ivory px-3 py-2 pr-28 font-editorial text-slateInk"
+                  readOnly
+                  type="number"
+                  value={baseRevenue}
+                />
+                <span className="pointer-events-none absolute inset-y-0 right-2 flex max-w-24 items-center truncate font-editorial text-xs text-mutedInk">
+                  {selectedUnitLabel}
+                </span>
+              </span>
             </label>
             {revenueMode === 'initial-plus-growth' && (
               <PercentInput label={t.labels.annualGrowth} onChange={setRevenueGrowth} value={revenueGrowth} />
@@ -658,10 +666,10 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
               <>
                 {revenueMode === 'initial-plus-growth' && <p>{`${t.labels.annualGrowth}: ${formatNumber(parseNumericInput(revenueGrowth), lang)}%`}</p>}
                 {revenueMode === 'year1-year5' && <p>{`or implied CAGR: ${formatNumber(impliedRevenueCagr ?? 0, lang)}%`}</p>}
-                {revenueMode === 'constant-5y' && <p>{`or constant value: ${formatMoney(constantRevenue, lang)}`}</p>}
+                {revenueMode === 'constant-5y' && <p>{`or constant value: ${formatUnitAmount(constantRevenue, lang, selectedUnitLabel)}`}</p>}
                 {revenueMode === 'benchmark-growth' && <p>{`Benchmark ${t.labels.annualGrowth.toLowerCase()}: ${formatNumber(BENCHMARK_RATE, lang)}%`}</p>}
                 {revenueMode === 'year-by-year-growth' && <p>{lang === 'es' ? 'crecimientos año a año' : 'year-by-year growth'}</p>}
-                <p>{`${t.labels.additionalRevenue}: ${formatMoney(additionalRevenueAmount, lang)}`}</p>
+                <p>{`${t.labels.additionalRevenue}: ${formatUnitAmount(additionalRevenueAmount, lang, selectedUnitLabel)}`}</p>
               </>
             }
             benchmark={
@@ -671,8 +679,8 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
                 <p>{t.labels.geography}</p>
               </>
             }
-            current={<p>{`${t.labels.currentRevenue}: ${formatMoney(baseRevenue, lang)}`}</p>}
-            year5={<p>{`${t.labels.projectedYear5Revenue}: ${formatMoney(revenueProjectionYear5WithAdditional, lang)}`}</p>}
+            current={<p>{`${t.labels.currentRevenue}: ${formatUnitAmount(baseRevenue, lang, selectedUnitLabel)}`}</p>}
+            year5={<p>{`${t.labels.projectedYear5Revenue}: ${formatUnitAmount(revenueProjectionYear5WithAdditional, lang, selectedUnitLabel)}`}</p>}
           />
 
           <button className="rounded-full bg-accent px-5 py-2 font-editorial text-sm text-ivory" onClick={() => setShowImpact(true)} type="button">
@@ -680,8 +688,8 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
           </button>
           {showImpact && (
             <div className="rounded-xl border border-line p-3 font-editorial text-sm text-slateInk">
-              <p>{`${t.labels.baseRevenue}: ${formatMoney(baseRevenue, lang)}`}</p>
-              <p>{`${t.labels.year5Revenue}: ${formatMoney(revenueProjectionYear5WithAdditional, lang)}`}</p>
+              <p>{`${t.labels.baseRevenue}: ${formatUnitAmount(baseRevenue, lang, selectedUnitLabel)}`}</p>
+              <p>{`${t.labels.year5Revenue}: ${formatUnitAmount(revenueProjectionYear5WithAdditional, lang, selectedUnitLabel)}`}</p>
               <p>{`${t.labels.impliedCagr}: ${impliedRevenueCagr === null ? '—' : `${formatNumber(impliedRevenueCagr, lang)}%`}`}</p>
               <p>{`${t.labels.benchmarkPosition}: ${revenueBenchmarkPosition}`}</p>
             </div>
@@ -768,13 +776,13 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
             }
             current={
               <>
-                <p>{`${t.labels.currentPurchases}: ${formatMoney(CURRENT_PURCHASES, lang)}`}</p>
+                <p>{`${t.labels.currentPurchases}: ${formatUnitAmount(CURRENT_PURCHASES, lang, selectedUnitLabel)}`}</p>
                 <p>{`${t.labels.purchasesRevenue}: ${formatNumber(purchasesRatioCurrent, lang)}%`}</p>
               </>
             }
             year5={
               <>
-                <p>{`${t.labels.year5Purchases}: ${formatMoney(CURRENT_PURCHASES * 1.1, lang)}`}</p>
+                <p>{`${t.labels.year5Purchases}: ${formatUnitAmount(CURRENT_PURCHASES * 1.1, lang, selectedUnitLabel)}`}</p>
                 <p>{`${t.labels.year5PurchasesRevenue}: ${formatNumber(BENCHMARK_PURCHASES_RATIO, lang)}%`}</p>
               </>
             }
@@ -861,13 +869,13 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
             }
             current={
               <>
-                <p>{`${t.labels.currentAdmin}: ${formatMoney(CURRENT_ADMIN, lang)}`}</p>
+                <p>{`${t.labels.currentAdmin}: ${formatUnitAmount(CURRENT_ADMIN, lang, selectedUnitLabel)}`}</p>
                 <p>{`${t.labels.adminRevenue}: ${formatNumber(adminRatioCurrent, lang)}%`}</p>
               </>
             }
             year5={
               <>
-                <p>{`${t.labels.year5AdminExpenses}: ${formatMoney(CURRENT_ADMIN * 1.1, lang)}`}</p>
+                <p>{`${t.labels.year5AdminExpenses}: ${formatUnitAmount(CURRENT_ADMIN * 1.1, lang, selectedUnitLabel)}`}</p>
                 <p>{`${t.labels.year5AdminRevenue}: ${formatNumber(BENCHMARK_ADMIN_RATIO, lang)}%`}</p>
               </>
             }
@@ -987,7 +995,7 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
                 current={
                   <>
                     <p>{`${t.labels.currentFte}: ${formatNumber(currentFte, lang, 0)}`}</p>
-                    <p>{`${t.labels.currentPersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL, lang)}`}</p>
+                    <p>{`${t.labels.currentPersonnelExpense}: ${formatUnitAmount(CURRENT_PERSONNEL, lang, selectedUnitLabel)}`}</p>
                     <p>{`${t.labels.currentCostPerEmployee}: ${new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(personnelCostPerEmployeeCurrent)}`}</p>
                   </>
                 }
@@ -995,7 +1003,7 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
                   <>
                     <p>{`${t.labels.year5Fte}: ${formatNumber(currentFte + additionalEmployees.reduce((a, b) => a + b, 0), lang, 0)}`}</p>
                     <p>{`${t.labels.year5CostPerEmployee}: ${new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-US').format(personnelCostPerEmployeeCurrent * 1.1)}`}</p>
-                    <p>{`${t.labels.year5TotalPersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL * 1.15, lang)}`}</p>
+                    <p>{`${t.labels.year5TotalPersonnelExpense}: ${formatUnitAmount(CURRENT_PERSONNEL * 1.15, lang, selectedUnitLabel)}`}</p>
                   </>
                 }
               />
@@ -1080,13 +1088,13 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
                 }
                 current={
                   <>
-                    <p>{`${t.labels.currentPersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL, lang)}`}</p>
+                    <p>{`${t.labels.currentPersonnelExpense}: ${formatUnitAmount(CURRENT_PERSONNEL, lang, selectedUnitLabel)}`}</p>
                     <p>{`${t.labels.currentPersonnelRevenue}: ${formatNumber(personnelRatioCurrent, lang)}%`}</p>
                   </>
                 }
                 year5={
                   <>
-                    <p>{`${t.labels.year5PersonnelExpense}: ${formatMoney(CURRENT_PERSONNEL * 1.1, lang)}`}</p>
+                    <p>{`${t.labels.year5PersonnelExpense}: ${formatUnitAmount(CURRENT_PERSONNEL * 1.1, lang, selectedUnitLabel)}`}</p>
                     <p>{`${t.labels.year5PersonnelRevenue}: ${formatNumber(BENCHMARK_PERSONNEL_RATIO, lang)}%`}</p>
                   </>
                 }
@@ -1215,16 +1223,16 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
             }
             current={
               <>
-                <p>{`${t.labels.currentFixedAssets}: ${formatMoney(CURRENT_FIXED_ASSETS, lang)}`}</p>
-                <p>{`${t.labels.currentIntangibleAssets}: ${formatMoney(CURRENT_INTANGIBLE_ASSETS, lang)}`}</p>
-                <p>{`${t.labels.fixedAssetsRevenue}: ${formatNumber((CURRENT_FIXED_ASSETS / BASE_REVENUE) * 100, lang)}%`}</p>
-                <p>{`${t.labels.intangibleAssetsRevenue}: ${formatNumber((CURRENT_INTANGIBLE_ASSETS / BASE_REVENUE) * 100, lang)}%`}</p>
+                <p>{`${t.labels.currentFixedAssets}: ${formatUnitAmount(CURRENT_FIXED_ASSETS, lang, selectedUnitLabel)}`}</p>
+                <p>{`${t.labels.currentIntangibleAssets}: ${formatUnitAmount(CURRENT_INTANGIBLE_ASSETS, lang, selectedUnitLabel)}`}</p>
+                <p>{`${t.labels.fixedAssetsRevenue}: ${formatNumber(baseRevenue > 0 ? (CURRENT_FIXED_ASSETS / baseRevenue) * 100 : 0, lang)}%`}</p>
+                <p>{`${t.labels.intangibleAssetsRevenue}: ${formatNumber(baseRevenue > 0 ? (CURRENT_INTANGIBLE_ASSETS / baseRevenue) * 100 : 0, lang)}%`}</p>
               </>
             }
             year5={
               <>
-                <p>{`${t.labels.year5Capex}: ${formatMoney(fixedPlan[4] + intangiblePlan[4], lang)}`}</p>
-                <p>{`${t.labels.cumulative5yCapex}: ${formatMoney([...fixedPlan, ...intangiblePlan].reduce((a, b) => a + b, 0), lang)}`}</p>
+                <p>{`${t.labels.year5Capex}: ${formatUnitAmount(fixedPlan[4] + intangiblePlan[4], lang, selectedUnitLabel)}`}</p>
+                <p>{`${t.labels.cumulative5yCapex}: ${formatUnitAmount([...fixedPlan, ...intangiblePlan].reduce((a, b) => a + b, 0), lang, selectedUnitLabel)}`}</p>
                 <p>{`${t.labels.year5FixedRevenue}: ${formatNumber(fixedRatio, lang)}%`}</p>
                 <p>{`${t.labels.year5IntangibleRevenue}: ${formatNumber(intangibleRatio, lang)}%`}</p>
               </>
@@ -1260,15 +1268,15 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
             }
             current={
               <>
-                <p>{`${t.labels.currentAmortization}: ${formatMoney(currentAmortization, lang)}`}</p>
-                <p>{`${t.labels.currentAmortizableAssets}: ${formatMoney(currentAmortizableAssets, lang)}`}</p>
+                <p>{`${t.labels.currentAmortization}: ${formatUnitAmount(currentAmortization, lang, selectedUnitLabel)}`}</p>
+                <p>{`${t.labels.currentAmortizableAssets}: ${formatUnitAmount(currentAmortizableAssets, lang, selectedUnitLabel)}`}</p>
                 <p>{`${t.labels.amortizationOverAmortizableAssets}: ${formatNumber(currentAmortizationRatio * 100, lang)}%`}</p>
                 <p>{`${t.labels.amortizationOverRevenue}: ${formatNumber(currentAmortizationRevenueRatio, lang)}%`}</p>
               </>
             }
             year5={
               <>
-                <p>{`${t.labels.year5Amortization}: ${formatMoney(projectedYear5Amortization, lang)}`}</p>
+                <p>{`${t.labels.year5Amortization}: ${formatUnitAmount(projectedYear5Amortization, lang, selectedUnitLabel)}`}</p>
                 <p>{`${t.labels.year5AmortizationOverRevenue}: ${formatNumber(year5AmortizationRevenueRatio, lang)}%`}</p>
               </>
             }
@@ -1287,7 +1295,7 @@ export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
                 <p>{`${t.labels.calculatedCollectionDays}: ${formatDays(calculatedWorkingCapitalDays.collection, lang)}`}</p>
                 <p>{`${t.labels.calculatedInventoryDays}: ${formatDays(calculatedWorkingCapitalDays.inventory, lang)}`}</p>
                 <p>{`${t.labels.calculatedPaymentDays}: ${formatDays(calculatedWorkingCapitalDays.payment, lang)}`}</p>
-                <p>{`${t.labels.currentOperatingWorkingCapital}: ${formatMoney(currentOperatingWorkingCapital, lang)}`}</p>
+                <p>{`${t.labels.currentOperatingWorkingCapital}: ${formatUnitAmount(currentOperatingWorkingCapital, lang, selectedUnitLabel)}`}</p>
               </div>
             </div>
 
