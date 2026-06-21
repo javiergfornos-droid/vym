@@ -3,7 +3,7 @@ import { RevenueAssumptionsSpeedTrack } from '@/components/revenue-assumptions-s
 import { RevenueAssumptionsStepByStep } from '@/components/revenue-assumptions-step';
 import { getLanguage } from '@/lib/i18n';
 
-type Props = { searchParams: { lang?: string; track?: string } };
+type Props = { searchParams: { lang?: string; track?: string; unit?: string } };
 
 export default function RevenueAssumptionsPage({ searchParams }: Props) {
   const lang = getLanguage(searchParams.lang);
@@ -12,7 +12,7 @@ export default function RevenueAssumptionsPage({ searchParams }: Props) {
   return (
     <>
       <TopNav currentPath="/wizard/revenue-assumptions" lang={lang} />
-      {track === 'speed' ? <RevenueAssumptionsSpeedTrack lang={lang} /> : <RevenueAssumptionsStepByStep lang={lang} />}
+      {track === 'speed' ? <RevenueAssumptionsSpeedTrack lang={lang} unit={searchParams.unit} /> : <RevenueAssumptionsStepByStep lang={lang} />}
     </>
   );
 }
