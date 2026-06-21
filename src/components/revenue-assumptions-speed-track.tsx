@@ -8,6 +8,7 @@ import { WIZARD_STORAGE_KEYS, readWizardStorage } from '@/lib/wizard-storage';
 
 type Props = {
   lang: Language;
+  unit?: string;
 };
 
 type RevenueMode = 'initial-plus-growth' | 'year1-year5' | 'constant-5y' | 'benchmark-growth' | 'year-by-year-growth';
@@ -62,10 +63,56 @@ const formatDays = (value: number, lang: Language) =>
   }).format(value);
 
 const parseNumericInput = (value: string | undefined) => Number(value?.replace(',', '.') || 0);
+
+const UNIT_LABELS: Record<Language, Record<string, string>> = {
+  es: {
+    eur: 'Euros',
+    'k-eur': 'Miles de euros',
+    'm-eur': 'Millones de euros',
+  },
+  en: {
+    eur: 'Euros',
+    'k-eur': 'Thousands of euros',
+    'm-eur': 'Millions of euros',
+  },
+};
+
+const getUnitLabel = (unit: string | undefined, lang: Language) => UNIT_LABELS[lang][unit ?? 'eur'] ?? UNIT_LABELS[lang].eur;
+const getSentenceUnitLabel = (unitLabel: string) => `${unitLabel.charAt(0).toLocaleLowerCase()}${unitLabel.slice(1)}`;
 const normalizePercentageInput = (value: string) => value.replace(',', '.').replace(/^0+(?=\d)/, '');
 const parseNumericInputOrFallback = (value: string | undefined, fallback: number) => (value === undefined ? fallback : parseNumericInput(value));
 const calculateDays = (numerator: number, denominator: number) => (denominator > 0 ? (numerator / denominator) * 365 : 0);
 
+
+function UnitAmountInput({
+  label,
+  unitLabel,
+  value,
+  onChange,
+}: {
+  label: string;
+  unitLabel: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className="text-sm text-mutedInk">
+      {label}
+      <span className="relative mt-1 block">
+        <input
+          className="w-full rounded-lg border border-line px-2 py-2 pr-28 font-editorial"
+          inputMode="decimal"
+          onChange={(e) => onChange(parseNumericInput(e.target.value))}
+          type="text"
+          value={value}
+        />
+        <span className="pointer-events-none absolute inset-y-0 right-2 flex max-w-24 items-center truncate font-editorial text-xs text-mutedInk">
+          {unitLabel}
+        </span>
+      </span>
+    </label>
+  );
+}
 
 function PercentInput({
   label,
@@ -192,7 +239,9 @@ type BalanceSheetStorage = {
   liabilities?: string[];
 };
 
-export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
+export function RevenueAssumptionsSpeedTrack({ lang, unit }: Props) {
+  const selectedUnitLabel = getUnitLabel(unit, lang);
+  const sentenceUnitLabel = getSentenceUnitLabel(selectedUnitLabel);
   const t: RevenueAssumptionsTranslations = {
     summary: { current: lang === 'es' ? 'Actual' : 'Current', assumption: lang === 'es' ? 'Hipótesis' : 'Assumption', benchmark: 'Benchmark', year5: lang === 'es' ? 'Año 5' : 'Year 5' },
     workingCapital: {
@@ -359,6 +408,7 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
   const [intangiblePlan, setIntangiblePlan] = useState([2, 2, 2, 2, 2]);
   const [fixedRatio, setFixedRatio] = useState((CURRENT_FIXED_ASSETS / BASE_REVENUE) * 100);
   const [intangibleRatio, setIntangibleRatio] = useState((CURRENT_INTANGIBLE_ASSETS / BASE_REVENUE) * 100);
+  const totalInvestmentPlan = [...fixedPlan, ...intangiblePlan].reduce((total, value) => total + value, 0);
 
   const [workingCapitalMode, setWorkingCapitalMode] = useState<WorkingCapitalMode>('confirmed');
   const [manualWorkingCapitalDays, setManualWorkingCapitalDays] = useState({ collection: '', inventory: '', payment: '' });
@@ -1095,40 +1145,42 @@ export function RevenueAssumptionsSpeedTrack({ lang }: Props) {
               <p className="text-sm text-mutedInk">{t.labels.fixedAssets}</p>
               <div className="grid gap-2 sm:grid-cols-5">
                 {YEARS.map((year, index) => (
-                  <label className="text-sm text-mutedInk" key={`fixed-${year}`}>
-                    {`${t.labels.yearLabel} ${year}`}
-                    <input
-                      className="no-spinner mt-1 w-full rounded-lg border border-line px-2 py-2"
-                      onChange={(e) => {
-                        const next = [...fixedPlan];
-                        next[index] = Number(e.target.value) || 0;
-                        setFixedPlan(next);
-                      }}
-                      type="number"
-                      value={fixedPlan[index]}
-                    />
-                  </label>
+                  <UnitAmountInput
+                    key={`fixed-${year}`}
+                    label={`${t.labels.yearLabel} ${year}`}
+                    onChange={(value) => {
+                      const next = [...fixedPlan];
+                      next[index] = value;
+                      setFixedPlan(next);
+                    }}
+                    unitLabel={selectedUnitLabel}
+                    value={fixedPlan[index]}
+                  />
                 ))}
               </div>
 
               <p className="text-sm text-mutedInk">{t.labels.intangibleAssets}</p>
               <div className="grid gap-2 sm:grid-cols-5">
                 {YEARS.map((year, index) => (
-                  <label className="text-sm text-mutedInk" key={`intangible-${year}`}>
-                    {`${t.labels.yearLabel} ${year}`}
-                    <input
-                      className="no-spinner mt-1 w-full rounded-lg border border-line px-2 py-2"
-                      onChange={(e) => {
-                        const next = [...intangiblePlan];
-                        next[index] = Number(e.target.value) || 0;
-                        setIntangiblePlan(next);
-                      }}
-                      type="number"
-                      value={intangiblePlan[index]}
-                    />
-                  </label>
+                  <UnitAmountInput
+                    key={`intangible-${year}`}
+                    label={`${t.labels.yearLabel} ${year}`}
+                    onChange={(value) => {
+                      const next = [...intangiblePlan];
+                      next[index] = value;
+                      setIntangiblePlan(next);
+                    }}
+                    unitLabel={selectedUnitLabel}
+                    value={intangiblePlan[index]}
+                  />
                 ))}
               </div>
+
+              <p className="font-editorial text-sm text-slateInk">
+                {lang === 'es'
+                  ? `Las inversiones a realizar en los próximos 5 años son ${formatNumber(totalInvestmentPlan, lang)} ${sentenceUnitLabel}.`
+                  : `The investments to be made over the next 5 years amount to ${formatNumber(totalInvestmentPlan, lang)} ${sentenceUnitLabel}.`}
+              </p>
             </div>
           )}
 
